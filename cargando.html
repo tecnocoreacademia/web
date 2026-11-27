@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Accediendo... · TecnoCore</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <style>
+    :root {
+      --bg: #030711;
+      --sky: #38BDF8;
+      --sky-dark: #0284C7;
+      --gold: #eab308;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color-scheme: dark;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: var(--sans);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* ===== FONDO ANIMADO: PARTÍCULAS FLOTANTES ===== */
+    .particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 0;
+        transform: translateY(100vh) scale(0);
+      }
+      10% { opacity: 1; }
+      90% { opacity: 0.6; }
+      100% {
+        opacity: 0;
+        transform: translateY(-10vh) scale(1);
+      }
+    }
+
+    /* Grid sutil */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== GLOW RADIAL DE FONDO ===== */
+    .bg-glow {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: glowPulse 3s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes glowPulse {
+      0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.8); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1.4); }
+    }
+
+    /* ===== LOGO CENTRAL ===== */
+    .loading-logo {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      position: relative;
+      z-index: 2;
+      animation: logoFloat 2.5s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.5));
+    }
+
+    @keyframes logoFloat {
+      0% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 25px rgba(56, 189, 248, 0.4));
+      }
+      100% {
+        transform: translateY(-10px);
+        filter: drop-shadow(0 0 45px rgba(56, 189, 248, 0.7));
+      }
+    }
+
+    /* ===== ANILLO GIRATORIO ===== */
+    .spinner-ring {
+      position: absolute;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top: 3px solid var(--sky);
+      border-right: 3px solid rgba(56, 189, 248, 0.3);
+      animation: spin 1.4s linear infinite;
+      z-index: 1;
+    }
+
+    .spinner-ring-2 {
+      position: absolute;
+      width: 196px;
+      height: 196px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-bottom: 2px solid rgba(234, 179, 8, 0.4);
+      border-left: 2px solid rgba(234, 179, 8, 0.15);
+      animation: spin 2.2s linear infinite reverse;
+      z-index: 1;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== TEXTOS ===== */
+    .loading-text {
+      margin-top: 36px;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .loading-dots::after {
+      content: "";
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0% { content: ""; }
+      25% { content: "."; }
+      50% { content: ".."; }
+      75% { content: "..."; }
+    }
+
+    .loading-sub {
+      margin-top: 10px;
+      font: 700 12px var(--mono);
+      color: rgba(56, 189, 248, 0.6);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== BARRA DE PROGRESO ===== */
+    .loading-bar-wrap {
+      margin-top: 28px;
+      width: 240px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+    }
+
+    .loading-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--sky-dark), var(--sky), #22c55e);
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
+
+    /* Container para posicionar spinner rings alrededor del logo */
+    .logo-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 200px;
+      height: 200px;
+      z-index: 2;
+    }
+
+    /* Fade-out antes de redirigir */
+    body.fade-out {
+      animation: fadeOut 0.5s ease forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: scale(1.05);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fondo: Partículas animadas -->
+  <div class="particles" id="particles"></div>
+  <div class="bg-glow"></div>
+
+  <!-- Logo con anillos giratorios -->
+  <div class="logo-container">
+    <div class="spinner-ring"></div>
+    <div class="spinner-ring-2"></div>
+    <img src="logo.png" alt="TecnoCore" class="loading-logo">
+  </div>
+
+  <!-- Texto de estado -->
+  <div class="loading-text">
+    Iniciando sesión<span class="loading-dots"></span>
+  </div>
+  <div class="loading-sub" id="loading-status">Verificando credenciales</div>
+
+  <!-- Barra de progreso -->
+  <div class="loading-bar-wrap">
+    <div class="loading-bar-fill" id="progress-bar"></div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script>
+    // Generar partículas flotantes
+    (function createParticles() {
+      const container = document.getElementById("particles");
+      const colors = ["rgba(56,189,248,0.3)", "rgba(2,132,199,0.25)", "rgba(234,179,8,0.2)", "rgba(34,197,94,0.15)"];
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement("div");
+        p.className = "particle";
+        const size = Math.random() * 6 + 2;
+        p.style.width = size + "px";
+        p.style.height = size + "px";
+        p.style.left = Math.random() * 100 + "%";
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.animationDuration = (Math.random() * 6 + 4) + "s";
+        p.style.animationDelay = (Math.random() * 5) + "s";
+        container.appendChild(p);
+      }
+    })();
+
+    // Lógica de carga
+    (async function() {
+      const bar = document.getElementById("progress-bar");
+      const status = document.getElementById("loading-status");
+
+      // Paso 1: Progreso visual simulado
+      bar.style.width = "30%";
+
+      await new Promise(r => setTimeout(r, 600));
+      bar.style.width = "50%";
+      status.textContent = "Cargando tu perfil";
+
+      // Paso 2: Verificar sesión real
+      let user = null;
+      try {
+        const me = await window.TC_API.auth.me();
+        if (me.authenticated && me.usuario) {
+          user = me.usuario;
+        }
+      } catch (e) {
+        console.warn("Sesión no válida:", e);
+      }
+
+      bar.style.width = "75%";
+
+      if (!user) {
+        status.textContent = "Sesión no encontrada";
+        bar.style.width = "100%";
+        await new Promise(r => setTimeout(r, 800));
+        location.href = "login.html";
+        return;
+      }
+
+      // Paso 3: Mostrar nombre de usuario
+      status.textContent = `¡Bienvenido, ${user.nombre_completo}!`;
+      bar.style.width = "90%";
+
+      await new Promise(r => setTimeout(r, 1000));
+      bar.style.width = "100%";
+      status.textContent = "Preparando tu espacio de trabajo";
+
+      await new Promise(r => setTimeout(r, 800));
+
+      // Paso 4: Fade out y redirigir
+      document.body.classList.add("fade-out");
+
+      await new Promise(r => setTimeout(r, 500));
+
+      const redirectUrl = new URLSearchParams(window.location.search).get("redirect");
+      if (redirectUrl) {
+        location.href = redirectUrl;
+      } else if (user.rol === "admin") {
+        location.href = "admin.html";
+      } else if (user.rol === "profesor") {
+        location.href = "profesor.html";
+      } else {
+        location.href = "campus.html";
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Panel Docente · TecnoCore LMS</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+  <style>
+    .prof-tab-view { display: none; }
+    .prof-tab-view.active { display: block; }
+    .counter-badge {
+      background: #ea580c; color: #fff; border-radius: 99px; padding: 2px 7px; font-size: 11px; font-family: var(--mono);
+    }
+  </style>
+</head>
+<body data-page="profesor">
+
+  <main class="wrap" style="padding-top:20px;padding-bottom:60px">
+    <!-- BLOQUEO SI NO ES PROFESOR -->
+    <div id="prof-guest-wall" class="card" style="max-width:500px;margin:50px auto;text-align:center;display:none">
+      <div class="pill gold"><span class="dot"></span> ACCESO RESTRINGIDO</div>
+      <h2>Panel Exclusivo para Profesores</h2>
+      <p class="lead">Debes iniciar sesión con una cuenta de <strong>Profesor</strong> para acceder a este panel docente.</p>
+      <a href="login.html?redirect=profesor.html" class="btn btn-primary">🔐 Iniciar Sesión como Profesor</a>
+    </div>
+
+    <!-- CONTENIDO DEL PANEL PROFESOR -->
+    <div id="prof-app" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <div>
+          <h1 id="prof-section-title" style="margin-bottom:4px">Mis Cursos Asignados</h1>
+          <p id="prof-section-subtitle" style="font-size:13px;color:var(--muted)">Gestiona los cursos que impartes, su temario y los diplomas de tus alumnos.</p>
+        </div>
+        <button class="btn btn-ghost" style="padding:7px 14px;min-height:auto;font-size:12.5px" onclick="cargarTodo()">🔄 Actualizar</button>
+      </div>
+
+      <!-- PESTAÑA 1: MIS CURSOS -->
+      <section id="prof-view-cursos" class="prof-tab-view active">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <h3>Cursos que impartes</h3>
+          <button class="btn btn-primary" onclick="abrirModalCurso()">+ Crear Nuevo Curso</button>
+        </div>
+
+        <div class="tc-table-wrap">
+          <table class="tc-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Título</th>
+                <th>Categoría / Nivel</th>
+                <th>Precio</th>
+                <th>Pesos (Ej/Ex/Pr)</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-cursos-body">
+              <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Cargando tus cursos...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PESTAÑA 2: TEMARIO MOODLE -->
+      <section id="prof-view-lecciones" class="prof-tab-view">
+        <div class="card" style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <label for="sel-curso-temario" style="font-size:13px;font-weight:800;color:var(--accent-text);white-space:nowrap">Curso:</label>
+              <select id="sel-curso-temario" class="tc-select" style="min-width:240px"></select>
+            </div>
+            <button class="btn btn-primary" onclick="abrirModalLeccion()">+ Añadir Ítem / Lección</button>
+          </div>
+        </div>
+
+        <div class="tc-table-wrap">
+          <table class="tc-table">
+            <thead>
+              <tr>
+                <th>Bloque</th>
+                <th>Orden</th>
+                <th>Tipo</th>
+                <th>Código</th>
+                <th>Título</th>
+                <th>Solucionario</th>
+                <th>Preview</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-lecciones-body">
+              <tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Selecciona un curso para ver su temario.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PESTAÑA 3: BANDEJA DE CORRECCIÓN -->
+      <section id="prof-view-correcciones" class="prof-tab-view">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <h3>Entregas y Exámenes</h3>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" onclick="filtrarSoloPendientes(true)">Solo Pendientes</button>
+            <button class="btn btn-ghost" onclick="filtrarSoloPendientes(false)">Ver Todas</button>
+          </div>
+        </div>
+
+        <div class="tc-table-wrap">
+          <table class="tc-table">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Alumno</th>
+                <th>Lección / Prueba</th>
+                <th>Intento</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Nota</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-correcciones-body">
+              <tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">Cargando correcciones...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PESTAÑA 4: MIS ALUMNOS Y DIPLOMAS -->
+      <section id="prof-view-matriculas" class="prof-tab-view">
+        <div class="card" style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <select id="filtro-mat-curso" class="tc-select" style="width:auto">
+                <option value="">Todos mis cursos</option>
+              </select>
+              <select id="filtro-mat-estado" class="tc-select" style="width:auto">
+                <option value="">Todos los estados</option>
+                <option value="activa">Activa</option>
+                <option value="pendiente_pago">Pendiente de Pago</option>
+                <option value="completada">Completada</option>
+              </select>
+            </div>
+            <span style="font-size:12px;color:var(--accent-text)">Solo puedes emitir diplomas de alumnos de tus cursos</span>
+          </div>
+        </div>
+
+        <div class="tc-table-wrap">
+          <table class="tc-table">
+            <thead>
+              <tr>
+                <th>Alumno</th>
+                <th>Curso</th>
+                <th>Progreso</th>
+                <th>Ej / Ex / Pr</th>
+                <th>Nota Final</th>
+                <th>Estado</th>
+                <th>Diploma</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-matriculas-body">
+              <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Cargando alumnos...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- MODAL CURSO -->
+    <div class="modal-bg" id="modal-curso">
+      <div class="modal-card" style="max-width:640px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3>Crear / Editar Curso</h3>
+          <button class="drawer-close" onclick="cerrarModalCurso()">✕</button>
+        </div>
+        <form id="form-guardar-curso">
+          <input type="hidden" id="c-form-id">
+          <div class="grid-2">
+            <div class="field">
+              <label for="c-form-cod">Código curso *</label>
+              <input type="text" id="c-form-cod" class="tc-input" required>
+            </div>
+            <div class="field">
+              <label for="c-form-slug">Slug URL *</label>
+              <input type="text" id="c-form-slug" class="tc-input" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="c-form-tit">Título oficial del curso *</label>
+            <input type="text" id="c-form-tit" class="tc-input" required>
+          </div>
+          <div class="field">
+            <label for="c-form-desc">Descripción corta *</label>
+            <textarea id="c-form-desc" class="tc-textarea" style="min-height:60px"></textarea>
+          </div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="c-form-cat">Categoría</label>
+              <input type="text" id="c-form-cat" class="tc-input" value="Sistemas y Linux">
+            </div>
+            <div class="field">
+              <label for="c-form-niv">Nivel</label>
+              <select id="c-form-niv" class="tc-select">
+                <option value="desde_cero">Desde cero</option>
+                <option value="basico">Básico</option>
+                <option value="intermedio">Intermedio</option>
+                <option value="avanzado">Avanzado</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="c-form-est">Estado</label>
+              <select id="c-form-est" class="tc-select">
+                <option value="publicado">Publicado</option>
+                <option value="proximamente">Próximamente</option>
+                <option value="borrador">Borrador</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="c-form-precio">Precio (€)</label>
+              <input type="number" step="0.01" id="c-form-precio" class="tc-input" value="0.00">
+            </div>
+            <div class="field">
+              <label for="c-form-oferta">Precio oferta (€)</label>
+              <input type="number" step="0.01" id="c-form-oferta" class="tc-input" placeholder="Opcional">
+            </div>
+            <div class="field">
+              <label for="c-form-horas">Horas lectivas</label>
+              <input type="number" id="c-form-horas" class="tc-input" value="0" min="0">
+            </div>
+          </div>
+          <div style="background:#040a16;padding:12px;border-radius:12px;border:1px solid var(--border);margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <strong style="font-size:12px;color:var(--accent-text)">⚖️ Pesos de Evaluación (Suma = 100%)</strong>
+              <span id="pesos-suma-tag" style="font-family:var(--mono);font-size:12px;font-weight:800;color:var(--green)">100% ✓</span>
+            </div>
+            <div class="grid-3">
+              <div>
+                <label style="font-size:11px;color:var(--muted)">% Ejercicios</label>
+                <input type="number" id="c-form-pej" class="tc-input" value="20" min="0" max="100" oninput="calcularSumaPesos()">
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--muted)">% Exámenes</label>
+                <input type="number" id="c-form-pex" class="tc-input" value="50" min="0" max="100" oninput="calcularSumaPesos()">
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--muted)">% Proyecto</label>
+                <input type="number" id="c-form-ppr" class="tc-input" value="30" min="0" max="100" oninput="calcularSumaPesos()">
+              </div>
+            </div>
+          </div>
+          <button type="submit" id="btn-save-curso" class="btn btn-primary" style="width:100%">Guardar Curso</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL LECCIÓN -->
+    <div class="modal-bg" id="modal-leccion">
+      <div class="modal-card" style="max-width:680px;max-height:90vh;overflow-y:auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3>Crear / Editar Ítem del Temario</h3>
+          <button class="drawer-close" onclick="cerrarModalLeccion()">✕</button>
+        </div>
+        <form id="form-guardar-leccion">
+          <input type="hidden" id="lec-form-id">
+          <input type="hidden" id="lec-form-curso-id">
+          <div class="grid-3">
+            <div class="field">
+              <label for="lec-form-bloque-num">Nº Bloque *</label>
+              <input type="number" id="lec-form-bloque-num" class="tc-input" value="1" min="1" required>
+            </div>
+            <div class="field">
+              <label for="lec-form-bloque-tit">Título Bloque *</label>
+              <input type="text" id="lec-form-bloque-tit" class="tc-input" value="Bloque 1: Introducción" required>
+            </div>
+            <div class="field">
+              <label for="lec-form-orden">Orden *</label>
+              <input type="number" id="lec-form-orden" class="tc-input" value="1" min="1" required>
+            </div>
+          </div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="lec-form-tipo">Tipo *</label>
+              <select id="lec-form-tipo" class="tc-select">
+                <option value="leccion">📖 Lección</option>
+                <option value="practica_guiada">🛠️ Práctica Guiada</option>
+                <option value="examen_bloque">📝 Examen de Bloque</option>
+                <option value="proyecto_final">🏆 Proyecto Final</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="lec-form-cod">Código</label>
+              <input type="text" id="lec-form-cod" class="tc-input" placeholder="B1-T01">
+            </div>
+            <div class="field">
+              <label for="lec-form-dur">Minutos</label>
+              <input type="number" id="lec-form-dur" class="tc-input" value="15" min="0">
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="lec-form-tit">Título *</label>
+              <input type="text" id="lec-form-tit" class="tc-input" required>
+            </div>
+            <div class="field">
+              <label for="lec-form-slug">Slug URL *</label>
+              <input type="text" id="lec-form-slug" class="tc-input" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="lec-form-teoria">Contenido teórico</label>
+            <textarea id="lec-form-teoria" class="tc-textarea" style="min-height:90px"></textarea>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="lec-form-apuntes-file">Apuntes PDF</label>
+              <input type="file" id="lec-form-apuntes-file" class="tc-input" accept=".pdf">
+              <input type="hidden" id="lec-form-apuntes-url">
+            </div>
+            <div class="field">
+              <label for="lec-form-boletin-file">Boletín PDF</label>
+              <input type="file" id="lec-form-boletin-file" class="tc-input" accept=".pdf">
+              <input type="hidden" id="lec-form-boletin-url">
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">
+            <label style="font-size:12.5px"><input type="checkbox" id="lec-form-actividad"> Tiene Actividad</label>
+            <label style="font-size:12.5px"><input type="checkbox" id="lec-form-sol-visible"> Mostrar Solucionario</label>
+            <label style="font-size:12.5px"><input type="checkbox" id="lec-form-preview"> Preview Gratis</label>
+          </div>
+          <button type="submit" id="btn-save-leccion" class="btn btn-primary" style="width:100%">Guardar Lección</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL CORREGIR -->
+    <div class="modal-bg" id="modal-corregir">
+      <div class="modal-card" style="max-width:600px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3>Calificar Entrega</h3>
+          <button class="drawer-close" onclick="cerrarModalCorregir()">✕</button>
+        </div>
+        <div id="corr-info" style="font-size:13px;color:var(--muted);margin-bottom:10px"></div>
+        <div id="corr-contenido-visor" style="background:#020611;border:1px solid var(--border);border-radius:10px;padding:10px;max-height:160px;overflow-y:auto;font-family:var(--mono);font-size:12px;color:#86efac;margin-bottom:12px;white-space:pre-wrap"></div>
+        <form id="form-calificar-entrega">
+          <input type="hidden" id="corr-id">
+          <input type="hidden" id="corr-tipo-item">
+          <div class="grid-2">
+            <div class="field">
+              <label for="corr-nota">Nota (0 a 10) *</label>
+              <input type="number" step="0.1" min="0" max="10" id="corr-nota" class="tc-input" required>
+            </div>
+            <div class="field">
+              <label for="corr-estado">Estado</label>
+              <select id="corr-estado" class="tc-select">
+                <option value="corregido">Corregido</option>
+                <option value="requiere_correccion">Requiere Corrección</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="corr-feedback">Feedback para el alumno</label>
+            <textarea id="corr-feedback" class="tc-textarea"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%">Guardar Calificación</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    let misCursos = [];
+    let soloPendientes = false;
+    let currentProfUser = null;
+
+    const profSectionMeta = {
+      cursos: { title: "Mis Cursos Asignados", sub: "Crea y gestiona los cursos que impartes en TecnoCore." },
+      lecciones: { title: "Temario Moodle", sub: "Organiza lecciones, apuntes y boletines de tus cursos." },
+      correcciones: { title: "Bandeja de Corrección", sub: "Califica las entregas y exámenes de tus alumnos." },
+      matriculas: { title: "Mis Alumnos y Diplomas", sub: "Emite diplomas oficiales únicamente a los alumnos de tus clases." }
+    };
+
+    function switchProfTab(tabName) {
+      document.querySelectorAll(".prof-tab-view").forEach(s => s.classList.toggle("active", s.id === `prof-view-${tabName}`));
+      document.querySelectorAll(".tc-sidebar-nav .tc-slink[data-prof-tab]").forEach(b => {
+        b.classList.toggle("active", b.dataset.profTab === tabName);
+      });
+      const meta = profSectionMeta[tabName];
+      if (meta) {
+        document.getElementById("prof-section-title").textContent = meta.title;
+        document.getElementById("prof-section-subtitle").textContent = meta.sub;
+      }
+    }
+
+    function calcularSumaPesos() {
+      const pej = parseFloat(document.getElementById("c-form-pej").value) || 0;
+      const pex = parseFloat(document.getElementById("c-form-pex").value) || 0;
+      const ppr = parseFloat(document.getElementById("c-form-ppr").value) || 0;
+      const suma = pej + pex + ppr;
+      const tag = document.getElementById("pesos-suma-tag");
+      tag.textContent = `${suma}% ${suma === 100 ? '✓' : '⚠️'}`;
+      tag.style.color = suma === 100 ? "var(--green)" : "var(--red)";
+      document.getElementById("btn-save-curso").disabled = (suma !== 100);
+    }
+
+    function abrirModalCurso(curso = null) {
+      document.getElementById("c-form-id").value = curso ? curso.id : "";
+      document.getElementById("c-form-cod").value = curso ? curso.codigo_curso : "";
+      document.getElementById("c-form-slug").value = curso ? curso.slug : "";
+      document.getElementById("c-form-tit").value = curso ? curso.titulo : "";
+      document.getElementById("c-form-desc").value = curso ? (curso.descripcion_corta || "") : "";
+      document.getElementById("c-form-cat").value = curso ? curso.categoria : "Sistemas y Linux";
+      document.getElementById("c-form-niv").value = curso ? curso.nivel : "desde_cero";
+      document.getElementById("c-form-est").value = curso ? curso.estado : "publicado";
+      document.getElementById("c-form-precio").value = curso ? curso.precio : "0.00";
+      document.getElementById("c-form-oferta").value = curso && curso.precio_oferta ? curso.precio_oferta : "";
+      document.getElementById("c-form-horas").value = curso ? (curso.duracion_estimada_horas || 0) : "0";
+      document.getElementById("c-form-pej").value = curso ? curso.peso_ejercicios : "20";
+      document.getElementById("c-form-pex").value = curso ? curso.peso_examenes_bloque : "50";
+      document.getElementById("c-form-ppr").value = curso ? curso.peso_proyecto_final : "30";
+      calcularSumaPesos();
+      document.getElementById("modal-curso").classList.add("open");
+    }
+
+    function cerrarModalCurso() { document.getElementById("modal-curso").classList.remove("open"); }
+    function cerrarModalLeccion() { document.getElementById("modal-leccion").classList.remove("open"); }
+    function cerrarModalCorregir() { document.getElementById("modal-corregir").classList.remove("open"); }
+
+    async function cargarCursos() {
+      const body = document.getElementById("tabla-cursos-body");
+      const selCursoTemario = document.getElementById("sel-curso-temario");
+      const selMatCurso = document.getElementById("filtro-mat-curso");
+
+      try {
+        const res = await window.TC_API.cursos.listar();
+        const todos = res.cursos || [];
+        // Mostrar solo los cursos asignados a este profesor
+        misCursos = todos.filter(c => Number(c.profesor_id) === Number(currentProfUser.id));
+
+        selCursoTemario.innerHTML = misCursos.map(c => `<option value="${c.id}">${c.codigo_curso} - ${c.titulo}</option>`).join('');
+        selMatCurso.innerHTML = `<option value="">Todos mis cursos</option>` + misCursos.map(c => `<option value="${c.id}">${c.codigo_curso} - ${c.titulo}</option>`).join('');
+
+        if (misCursos.length === 0) {
+          body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Aún no tienes cursos creados o asignados.</td></tr>`;
+          return;
+        }
+
+        body.innerHTML = misCursos.map(c => `
+          <tr>
+            <td style="font-family:var(--mono);color:var(--accent-text)">${c.codigo_curso}</td>
+            <td><strong>${c.titulo}</strong></td>
+            <td>${c.categoria} <br><small style="color:var(--muted)">${c.nivel}</small></td>
+            <td>€${c.precio}</td>
+            <td style="font-family:var(--mono);font-size:12px">${c.peso_ejercicios}% / ${c.peso_examenes_bloque}% / ${c.peso_proyecto_final}%</td>
+            <td><span class="badge badge-${c.estado}">${c.estado.toUpperCase()}</span></td>
+            <td>
+              <button class="btn btn-ghost" style="padding:4px 8px;font-size:11.5px;min-height:auto" onclick='abrirModalCurso(${JSON.stringify(c)})'>✏️ Editar</button>
+            </td>
+          </tr>
+        `).join('');
+
+        cargarLecciones();
+      } catch (e) {
+        console.error("Error cursos profesor:", e);
+      }
+    }
+
+    async function cargarLecciones() {
+      const cursoId = document.getElementById("sel-curso-temario").value;
+      const body = document.getElementById("tabla-lecciones-body");
+      if (!cursoId) {
+        body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Crea o selecciona un curso para ver su temario.</td></tr>`;
+        return;
+      }
+
+      try {
+        const res = await window.TC_API.lecciones.arbol(parseInt(cursoId));
+        const lecciones = res.lecciones || [];
+        window.leccionesCache = {};
+        lecciones.forEach(l => { window.leccionesCache[l.id] = l; });
+        if (lecciones.length === 0) {
+          body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Este curso no tiene temas aún.</td></tr>`;
+          return;
+        }
+        body.innerHTML = lecciones.map(l => `
+          <tr>
+            <td>B${l.bloque_numero}</td>
+            <td>#${l.orden_leccion}</td>
+            <td><span class="badge badge-publicado">${l.tipo_item}</span></td>
+            <td style="font-family:var(--mono);color:var(--muted)">${l.codigo_tema || '-'}</td>
+            <td><strong>${l.titulo}</strong></td>
+            <td>${l.mostrar_solucionario ? '🟢 Visible' : '⚪ Oculto'}</td>
+            <td>${l.es_gratis_preview ? '🟢 Gratis' : '🔒 Privado'}</td>
+            <td><span class="badge badge-${l.estado}">${l.estado.toUpperCase()}</span></td>
+            <td>
+              <div style="display:flex;gap:4px">
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;min-height:auto" onclick="abrirModalLeccion(window.leccionesCache[${l.id}])" title="Editar lección">✏️</button>
+                <button class="btn btn-danger" style="padding:3px 7px;font-size:11px;min-height:auto" onclick="eliminarLeccion(${l.id})" title="Eliminar lección">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error("Error lecciones:", e);
+      }
+    }
+
+    async function eliminarLeccion(id) {
+      if (!confirm("¿Seguro que deseas eliminar este tema?")) return;
+      try {
+        await window.TC_API.lecciones.eliminar(id);
+        window.tcToast("Lección eliminada", "info");
+        cargarLecciones();
+      } catch (err) {
+        window.tcToast("Error: " + err.message, "error");
+      }
+    }
+
+    function filtrarSoloPendientes(val) {
+      soloPendientes = val;
+      cargarCorrecciones();
+    }
+
+    async function cargarCorrecciones() {
+      const body = document.getElementById("tabla-correcciones-body");
+      try {
+        const params = soloPendientes ? { pendientes: "true" } : {};
+        const [entRes, exRes] = await Promise.all([
+          window.TC_API.entregas.listar(params),
+          window.TC_API.examenes.listar(params)
+        ]);
+        const entregas = (entRes.entregas || []).map(e => ({ ...e, tipoOrigen: "ejercicio" }));
+        const examenes = (exRes.examenes || []).map(e => ({ ...e, tipoOrigen: "examen" }));
+        const todos = [...entregas, ...examenes];
+
+        const pendientesCount = todos.filter(t => ["entregado", "en_revision", "pendiente_revision"].includes(t.estado_entrega || t.estado_evaluacion)).length;
+        const bCorr = document.getElementById("badge-count-correcciones");
+        if (bCorr) {
+          bCorr.style.display = pendientesCount > 0 ? "inline" : "none";
+          bCorr.textContent = pendientesCount;
+        }
+
+        if (todos.length === 0) {
+          body.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No hay entregas pendientes.</td></tr>`;
+          return;
+        }
+
+        body.innerHTML = todos.map(it => {
+          const isEx = it.tipoOrigen === "examen";
+          const estado = isEx ? it.estado_evaluacion : it.estado_entrega;
+          const nota = it.nota !== null ? `${it.nota} / 10` : '-';
+          const fecha = it.fecha_entrega || it.fecha_realizacion;
+          return `
+            <tr>
+              <td><span class="badge ${isEx ? 'badge-denegado' : 'badge-publicado'}">${isEx ? 'EXAMEN' : 'BOLETÍN'}</span></td>
+              <td><strong>${it.alumno?.nombre_completo || 'Alumno #' + it.usuario_id}</strong></td>
+              <td>${it.leccion?.titulo || 'Prueba #' + it.leccion_id}</td>
+              <td style="font-family:var(--mono)">#${it.numero_intento}</td>
+              <td style="font-size:12px;color:var(--muted)">${new Date(fecha).toLocaleDateString()}</td>
+              <td><span class="badge badge-${estado}">${estado.toUpperCase()}</span></td>
+              <td style="font-weight:800;color:var(--accent-text)">${nota}</td>
+              <td><button class="btn btn-primary" style="padding:4px 10px;font-size:11.5px;min-height:auto" onclick='abrirModalCorregir(${JSON.stringify(it)})'>✍️ Corregir</button></td>
+            </tr>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error("Error correcciones:", e);
+      }
+    }
+
+    function abrirModalCorregir(item) {
+      document.getElementById("corr-id").value = item.id;
+      document.getElementById("corr-tipo-item").value = item.tipoOrigen;
+      document.getElementById("corr-info").innerHTML = `<strong>Alumno:</strong> ${item.alumno?.nombre_completo || 'ID ' + item.usuario_id} | <strong>Prueba:</strong> ${item.leccion?.titulo || 'Tema'}`;
+      const visor = document.getElementById("corr-contenido-visor");
+      if (item.contenido_codigo) visor.textContent = item.contenido_codigo;
+      else if (item.archivo_url || item.archivo_proyecto_url) {
+        const url = item.archivo_url || item.archivo_proyecto_url;
+        visor.innerHTML = `<a href="${url}" target="_blank" style="color:var(--accent-text);text-decoration:underline">🔗 Ver archivo entregado</a>`;
+      } else visor.textContent = "Sin contenido adjunto";
+      document.getElementById("corr-nota").value = item.nota !== null ? item.nota : "";
+      document.getElementById("corr-feedback").value = item.feedback_profesor || "";
+      document.getElementById("modal-corregir").classList.add("open");
+    }
+
+    document.getElementById("form-calificar-entrega").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("corr-id").value;
+      const tipo = document.getElementById("corr-tipo-item").value;
+      const nota = parseFloat(document.getElementById("corr-nota").value);
+      const estado = document.getElementById("corr-estado").value;
+      const feedback = document.getElementById("corr-feedback").value.trim();
+
+      try {
+        if (tipo === "examen") await window.TC_API.examenes.calificar({ id, nota, feedback_profesor: feedback });
+        else await window.TC_API.entregas.calificar({ id, nota, estado_entrega: estado, feedback_profesor: feedback });
+        window.tcToast("¡Calificación guardada!", "success");
+        cerrarModalCorregir();
+        cargarCorrecciones();
+        cargarMatriculas();
+      } catch (err) {
+        window.tcToast("Error: " + err.message, "error");
+      }
+    });
+
+    async function cargarMatriculas() {
+      const body = document.getElementById("tabla-matriculas-body");
+      const cursoId = document.getElementById("filtro-mat-curso").value;
+      const estado = document.getElementById("filtro-mat-estado").value;
+      const params = {};
+      if (cursoId) params.curso_id = cursoId;
+      if (estado) params.estado_matricula = estado;
+
+      try {
+        const res = await window.TC_API.matriculas.listar(params);
+        const mats = res.matriculas || [];
+        if (mats.length === 0) {
+          body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No tienes alumnos matriculados en tus cursos todavía.</td></tr>`;
+          return;
+        }
+
+        body.innerHTML = mats.map(m => {
+          const c = m.curso || {};
+          const u = m.alumno || {};
+          const progreso = parseFloat(m.porcentaje_progreso || 0);
+          let diplomaCell = "";
+          if (m.diploma_generado && m.codigo_diploma) {
+            diplomaCell = `
+              <div style="font-size:11px">
+                <span class="badge badge-aprobado">GENERADO</span>
+                <div style="font-family:var(--mono);color:var(--accent-text);margin-top:2px">${m.codigo_diploma}</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">
+                  <a href="diploma.html?codigo=${encodeURIComponent(m.codigo_diploma)}" target="_blank" class="btn btn-primary" style="padding:2px 7px;font-size:10px;min-height:auto">📥 Diploma HTML</a>
+                  <a href="verificar-diploma.html?codigo=${encodeURIComponent(m.codigo_diploma)}" target="_blank" class="btn btn-ghost" style="padding:2px 6px;font-size:10px;min-height:auto">Verificar</a>
+                </div>
+              </div>`;
+          } else if (m.aprobado || progreso >= 100) {
+            diplomaCell = `<button class="btn btn-primary" style="padding:4px 10px;font-size:11px;min-height:auto" onclick="generarDiploma(${m.id})">🎓 Generar Diploma</button>`;
+          } else {
+            diplomaCell = `<span style="color:var(--muted);font-size:12px">Pendiente aprobar</span>`;
+          }
+
+          return `
+            <tr>
+              <td><strong>${u.nombre_completo || 'Alumno #' + m.usuario_id}</strong><br><small style="color:var(--muted)">${u.email || ''}</small></td>
+              <td>${c.codigo_curso || ''} - ${c.titulo || ''}</td>
+              <td>
+                <div style="font-family:var(--mono);font-size:11px">${progreso}%</div>
+                <div class="progress-bar-bg" style="width:70px"><div class="progress-bar-fill" style="width:${progreso}%"></div></div>
+              </td>
+              <td style="font-family:var(--mono);font-size:11px">${m.nota_ejercicios ?? '-'} / ${m.nota_examenes ?? '-'} / ${m.nota_proyecto ?? '-'}</td>
+              <td>
+                <strong style="color:${m.aprobado ? 'var(--green)' : 'var(--accent-text)'}">${m.nota_final ?? '-'}</strong>
+                ${m.aprobado
+                  ? `<div style="margin-top:3px"><span class="badge badge-aprobado" style="font-size:10px">APROBADO</span></div>`
+                  : `<div style="margin-top:4px"><button class="btn btn-primary" style="padding:3px 8px;font-size:10.5px;min-height:auto" onclick="aprobarAlumno(${m.id}, ${m.nota_final ?? 'null'})">✓ Aprobar</button></div>`}
+              </td>
+              <td>
+                <select class="tc-select" style="min-height:28px;padding:2px 6px;font-size:11px;width:auto" onchange="cambiarEstadoMatricula(${m.id}, this.value)">
+                  <option value="pendiente_pago" ${m.estado_matricula === 'pendiente_pago' ? 'selected' : ''}>Pendiente Pago</option>
+                  <option value="activa" ${m.estado_matricula === 'activa' ? 'selected' : ''}>Activa</option>
+                  <option value="completada" ${m.estado_matricula === 'completada' ? 'selected' : ''}>Completada</option>
+                  <option value="cancelada" ${m.estado_matricula === 'cancelada' ? 'selected' : ''}>Cancelada</option>
+                </select>
+              </td>
+              <td>${diplomaCell}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error("Error matriculas:", e);
+      }
+    }
+
+    async function cambiarEstadoMatricula(id, estado_matricula) {
+      try {
+        await window.TC_API.matriculas.actualizar({ id, estado_matricula });
+        window.tcToast(`Matrícula actualizada a ${estado_matricula}`, "success");
+        cargarMatriculas();
+      } catch (err) {
+        window.tcToast("Error: " + err.message, "error");
+      }
+    }
+
+    async function aprobarAlumno(id, notaActual) {
+      let notaFinal = notaActual;
+      if (notaFinal === null || notaFinal === undefined || parseFloat(notaFinal) < 5) {
+        const entrada = prompt("Nota final del alumno para aprobar (5.00 - 10):", notaActual !== null && notaActual !== undefined ? String(notaActual) : "5.00");
+        if (entrada === null) return;
+        notaFinal = parseFloat(entrada);
+        if (isNaN(notaFinal) || notaFinal < 0 || notaFinal > 10) {
+          window.tcToast("Nota inválida (debe estar entre 0 y 10)", "error");
+          return;
+        }
+      }
+      try {
+        await window.TC_API.matriculas.actualizar({
+          id,
+          aprobado: true,
+          nota_final: notaFinal,
+          estado_matricula: "completada",
+          fecha_completado: new Date().toISOString()
+        });
+        window.tcToast("¡Alumno aprobado! Ya puedes emitir su diploma.", "success");
+        cargarMatriculas();
+      } catch (err) {
+        window.tcToast("Error al aprobar alumno: " + err.message, "error");
+      }
+    }
+
+    async function generarDiploma(matriculaId) {
+      try {
+        const res = await window.TC_API.diplomas.generar(matriculaId);
+        window.tcToast(`¡Diploma emitido! Código: ${res.codigo_diploma}`, "success");
+        cargarMatriculas();
+      } catch (err) {
+        window.tcToast("Error: " + err.message, "error");
+      }
+    }
+
+    function abrirModalLeccion(leccion = null) {
+      const cursoId = document.getElementById("sel-curso-temario").value;
+      if (!cursoId) return window.tcToast("Selecciona primero un curso", "error");
+      document.getElementById("form-guardar-leccion").reset();
+      document.getElementById("lec-form-id").value = leccion ? leccion.id : "";
+      document.getElementById("lec-form-curso-id").value = cursoId;
+      document.getElementById("lec-form-bloque-num").value = leccion ? leccion.bloque_numero : "1";
+      document.getElementById("lec-form-bloque-tit").value = leccion ? (leccion.bloque_titulo || "Bloque 1: Introducción") : "Bloque 1: Introducción";
+      if (leccion) {
+        document.getElementById("lec-form-orden").value = leccion.orden_leccion;
+      } else {
+        const filasActuales = document.querySelectorAll("#tabla-lecciones-body tr td:first-child").length;
+        document.getElementById("lec-form-orden").value = filasActuales > 0 ? filasActuales + 1 : 1;
+      }
+      document.getElementById("lec-form-tipo").value = leccion ? leccion.tipo_item : "leccion";
+      document.getElementById("lec-form-cod").value = leccion ? (leccion.codigo_tema || "") : "";
+      document.getElementById("lec-form-dur").value = leccion ? (leccion.duracion_minutos || 0) : "15";
+      document.getElementById("lec-form-tit").value = leccion ? leccion.titulo : "";
+      document.getElementById("lec-form-slug").value = leccion ? leccion.slug : "";
+      document.getElementById("lec-form-teoria").value = leccion ? (leccion.contenido_teoria || "") : "";
+      document.getElementById("lec-form-apuntes-url").value = leccion ? (leccion.pdf_apuntes_url || "") : "";
+      document.getElementById("lec-form-boletin-url").value = leccion ? (leccion.pdf_boletin_url || "") : "";
+      document.getElementById("lec-form-actividad").checked = leccion ? !!leccion.tiene_actividad : false;
+      document.getElementById("lec-form-sol-visible").checked = leccion ? !!leccion.mostrar_solucionario : false;
+      document.getElementById("lec-form-preview").checked = leccion ? !!leccion.es_gratis_preview : false;
+      document.getElementById("modal-leccion").classList.add("open");
+    }
+
+    document.getElementById("form-guardar-leccion").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn-save-leccion");
+      btn.disabled = true;
+      try {
+        let apuntesUrl = document.getElementById("lec-form-apuntes-url").value;
+        const f1 = document.getElementById("lec-form-apuntes-file").files[0];
+        if (f1) apuntesUrl = (await window.TC_API.storage.upload("apuntes", f1)).url;
+
+        let boletinUrl = document.getElementById("lec-form-boletin-url").value;
+        const f2 = document.getElementById("lec-form-boletin-file").files[0];
+        if (f2) boletinUrl = (await window.TC_API.storage.upload("boletines", f2)).url;
+
+        const id = document.getElementById("lec-form-id").value;
+        await window.TC_API.lecciones.guardar({
+          id: id ? parseInt(id) : undefined,
+          curso_id: document.getElementById("lec-form-curso-id").value,
+          bloque_numero: parseInt(document.getElementById("lec-form-bloque-num").value) || 1,
+          bloque_titulo: document.getElementById("lec-form-bloque-tit").value.trim(),
+          orden_leccion: parseInt(document.getElementById("lec-form-orden").value) || 1,
+          tipo_item: document.getElementById("lec-form-tipo").value,
+          codigo_tema: document.getElementById("lec-form-cod").value.trim() || null,
+          duracion_minutos: parseInt(document.getElementById("lec-form-dur").value) || 0,
+          titulo: document.getElementById("lec-form-tit").value.trim(),
+          slug: document.getElementById("lec-form-slug").value.trim(),
+          contenido_teoria: document.getElementById("lec-form-teoria").value.trim() || null,
+          pdf_apuntes_url: apuntesUrl || null,
+          pdf_boletin_url: boletinUrl || null,
+          tiene_actividad: document.getElementById("lec-form-actividad").checked,
+          mostrar_solucionario: document.getElementById("lec-form-sol-visible").checked,
+          es_gratis_preview: document.getElementById("lec-form-preview").checked,
+          estado: "publicado"
+        });
+        window.tcToast("Lección guardada", "success");
+        cerrarModalLeccion();
+        cargarLecciones();
+      } catch (err) {
+        window.tcToast("Error: " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById("form-guardar-curso").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("c-form-id").value;
+      try {
+        await window.TC_API.cursos.guardar({
+          id: id || undefined,
+          codigo_curso: document.getElementById("c-form-cod").value.trim(),
+          slug: document.getElementById("c-form-slug").value.trim(),
+          titulo: document.getElementById("c-form-tit").value.trim(),
+          descripcion_corta: document.getElementById("c-form-desc").value.trim(),
+          categoria: document.getElementById("c-form-cat").value.trim(),
+          nivel: document.getElementById("c-form-niv").value,
+          estado: document.getElementById("c-form-est").value,
+          precio: parseFloat(document.getElementById("c-form-precio").value) || 0,
+          precio_oferta: document.getElementById("c-form-oferta").value ? parseFloat(document.getElementById("c-form-oferta").value) : null,
+          duracion_estimada_horas: parseInt(document.getElementById("c-form-horas").value) || 0,
+          peso_ejercicios: parseFloat(document.getElementById("c-form-pej").value) || 20,
+          peso_examenes_bloque: parseFloat(document.getElementById("c-form-pex").value) || 50,
+          peso_proyecto_final: parseFloat(document.getElementById("c-form-ppr").value) || 30
+        });
+        window.tcToast("Curso guardado", "success");
+        cerrarModalCurso();
+        cargarCursos();
+      } catch (err) {
+        window.tcToast("Error: " + err.message, "error");
+      }
+    });
+
+    function cargarTodo() {
+      cargarCursos();
+      cargarCorrecciones();
+      cargarMatriculas();
+    }
+
+    document.addEventListener("tc:ready", (e) => {
+      const user = e.detail?.user;
+      if (!user) {
+        document.getElementById("prof-guest-wall").style.display = "block";
+        document.getElementById("prof-app").style.display = "none";
+        return;
+      }
+      if (user.rol !== "profesor") {
+        location.href = user.rol === "admin" ? "admin.html" : "campus.html";
+        return;
+      }
+
+      currentProfUser = user;
+      document.getElementById("prof-guest-wall").style.display = "none";
+      document.getElementById("prof-app").style.display = "block";
+      cargarTodo();
+
+      document.getElementById("sel-curso-temario").addEventListener("change", cargarLecciones);
+      document.getElementById("filtro-mat-curso").addEventListener("change", cargarMatriculas);
+      document.getElementById("filtro-mat-estado").addEventListener("change", cargarMatriculas);
+    });
+  </script>
+</body>
+</html>

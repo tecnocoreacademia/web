@@ -6,61 +6,328 @@
   <title>Iniciar Sesión · TecnoCore Campus</title>
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="assets/tecnocore.css">
+  <style>
+    /* ===== LOGIN SPLIT-SCREEN CON FONDO DEGRADADO AZUL ELÉCTRICO Y BLANCO EN MOVIMIENTO LENTO ===== */
+    body.login-page {
+      padding-top: 0 !important;
+      min-height: 100dvh;
+      display: flex;
+      align-items: stretch;
+      background: linear-gradient(125deg, #03152e, #0284c7, #0ea5e9, #dbeafe, #ffffff, #38bdf8, #031c3d);
+      background-size: 360% 360%;
+      animation: electricGradientShift 24s ease-in-out infinite;
+    }
+    body.login-page::before { display: none; }
+
+    @keyframes electricGradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .login-split {
+      display: flex;
+      width: 100%;
+      min-height: 100dvh;
+      background: rgba(3, 10, 24, 0.34);
+      backdrop-filter: blur(4px);
+    }
+
+    /* ===== PANEL IZQUIERDO (Branding con logo grande y efectos detrás) ===== */
+    .login-brand-panel {
+      flex: 1 1 52%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-logo-stage {
+      position: relative;
+      width: 270px;
+      height: 270px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .login-logo-halo {
+      position: absolute;
+      inset: -18px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.45) 0%, rgba(56, 189, 248, 0.32) 45%, transparent 72%);
+      filter: blur(14px);
+      animation: loginGlow 5s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    .login-logo-ring {
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      border: 2px dashed rgba(255, 255, 255, 0.35);
+      animation: spinSlow 28s linear infinite;
+      pointer-events: none;
+    }
+
+    .login-logo-ring-outer {
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      border-top-color: #ffffff;
+      border-right-color: transparent;
+      animation: spinSlow 16s linear infinite reverse;
+      pointer-events: none;
+    }
+
+    @keyframes spinSlow {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes loginGlow {
+      0% { opacity: 0.6; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1.12); }
+    }
+
+    .login-logo-img {
+      width: 215px;
+      height: 215px;
+      border-radius: 50%;
+      object-fit: cover;
+      filter: drop-shadow(0 0 36px rgba(56, 189, 248, 0.65));
+      position: relative;
+      z-index: 2;
+      animation: logoPulse 3.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes logoPulse {
+      0% { transform: translateY(0); filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.5)); }
+      100% { transform: translateY(-6px); filter: drop-shadow(0 0 44px rgba(255, 255, 255, 0.65)); }
+    }
+
+    .login-brand-title {
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -0.6px;
+      line-height: 1.1;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+      color: #ffffff;
+      text-shadow: 0 4px 24px rgba(3, 15, 38, 0.65);
+    }
+
+    .login-brand-sub {
+      font: 800 13px var(--mono);
+      color: #e0f2fe;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 2px 10px rgba(3, 15, 38, 0.6);
+    }
+
+    .login-brand-divider {
+      width: 56px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ffffff, transparent);
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .login-brand-credit {
+      font: 700 11.5px var(--mono);
+      color: rgba(240, 249, 255, 0.88);
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 2px 10px rgba(3, 15, 38, 0.6);
+    }
+
+    /* ===== PANEL DERECHO (Formulario compacto) ===== */
+    .login-form-panel {
+      flex: 1 1 48%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 36px 28px;
+    }
+
+    .login-form-card {
+      width: 100%;
+      max-width: 390px;
+      background: rgba(6, 15, 32, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      border-radius: 22px;
+      padding: 30px 26px;
+      box-shadow: 0 24px 64px rgba(2, 10, 28, 0.55);
+    }
+
+    .login-form-card h2 {
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 22px;
+      color: #fff;
+    }
+
+    .login-field-label {
+      display: block;
+      font: 800 11px var(--mono);
+      color: var(--sky);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .login-field-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(56, 189, 248, 0.25);
+      background: rgba(3, 8, 20, 0.85);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 14px;
+      transition: 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .login-field-input:focus {
+      outline: none;
+      border-color: var(--sky);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+
+    .login-field-input::placeholder {
+      color: rgba(148, 178, 212, 0.5);
+    }
+
+    .login-btn-submit {
+      width: 100%;
+      min-height: 46px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font: 800 14px var(--sans);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #bae6fd, #38BDF8 55%, #0284C7);
+      color: #03101d;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 8px 24px rgba(2, 132, 199, 0.4);
+      margin-top: 4px;
+    }
+
+    .login-btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 32px rgba(2, 132, 199, 0.55);
+    }
+
+    .login-btn-submit:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .login-register-link {
+      display: block;
+      text-align: center;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .login-register-link a {
+      color: var(--sky);
+      font-weight: 700;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    .login-register-link a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 860px) {
+      .login-split { flex-direction: column; }
+      .login-brand-panel { flex: 0 0 auto; padding: 34px 20px 20px; }
+      .login-logo-stage { width: 170px; height: 170px; margin-bottom: 14px; }
+      .login-logo-img { width: 135px; height: 135px; }
+      .login-brand-title { font-size: 28px; }
+      .login-brand-sub { font-size: 11px; margin-bottom: 10px; }
+      .login-brand-divider { margin-bottom: 10px; }
+      .login-form-panel { flex: 1 1 auto; padding: 18px 16px 32px; }
+      .login-form-card { padding: 24px 20px; }
+    }
+  </style>
 </head>
-<body data-page="login">
+<body class="login-page" data-page="login">
 
-  <main class="wrap" style="padding-top:40px;padding-bottom:60px">
-    <div style="max-width:440px;margin:0 auto">
-      <div style="text-align:center;margin-bottom:24px">
-        <div class="pill gold"><span class="dot"></span> ACCESO PRIVADO</div>
-        <h1 style="font-size:28px">Acceso al <span class="grad">Campus Virtual</span></h1>
-        <p class="lead" style="font-size:14px">Entra con tu cuenta de Alumno, Profesor o Administrador.</p>
+  <div class="login-split">
+    <!-- PANEL IZQUIERDO: BRANDING -->
+    <div class="login-brand-panel">
+      <div class="login-logo-stage">
+        <div class="login-logo-halo"></div>
+        <div class="login-logo-ring-outer"></div>
+        <div class="login-logo-ring"></div>
+        <img src="logo.png" alt="TecnoCore Logo" class="login-logo-img">
       </div>
+      <div class="login-brand-title">TecnoCore</div>
+      <div class="login-brand-sub">Academia de Informática &amp; Campus LMS</div>
+      <div class="login-brand-divider"></div>
+      <div class="login-brand-credit">SMR · ASIR · Linux · Redes · Programación</div>
+    </div>
 
-      <div class="card" style="border-color:var(--border-hi);padding:28px 24px">
-        <form id="form-login">
-          <div class="field">
-            <label for="login-identificador">Correo electrónico o Usuario</label>
-            <input type="text" id="login-identificador" class="tc-input" placeholder="tu@correo.com o tu_usuario" required autofocus>
-          </div>
+    <!-- PANEL DERECHO: FORMULARIO -->
+    <div class="login-form-panel">
+      <div class="login-form-card">
+        <h2>Iniciar Sesión</h2>
 
-          <div class="field">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-              <label for="login-pass" style="margin-bottom:0">Contraseña</label>
-            </div>
-            <input type="password" id="login-pass" class="tc-input" placeholder="Introduce tu contraseña" required>
-          </div>
+        <form id="form-login" autocomplete="on">
+          <label for="login-identificador" class="login-field-label">Usuario</label>
+          <input type="text" id="login-identificador" class="login-field-input" placeholder="Introduce tu usuario" required autofocus autocomplete="username">
 
-          <button type="submit" id="btn-login" class="btn btn-primary" style="width:100%;margin-top:8px">
-            Entrar al Campus →
+          <label for="login-pass" class="login-field-label">Contraseña</label>
+          <input type="password" id="login-pass" class="login-field-input" placeholder="Introduce tu contraseña" required autocomplete="current-password">
+
+          <button type="submit" id="btn-login" class="login-btn-submit">
+            Conectar al Sistema
           </button>
 
           <div id="login-msg" class="status-msg"></div>
         </form>
 
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;font-size:13.5px;color:var(--muted)">
-          ¿Aún no tienes cuenta de alumno?<br>
-          <a href="registro.html" style="color:var(--sky);font-weight:700;display:inline-block;margin-top:6px">
-            Regístrate aquí para solicitar acceso →
-          </a>
+        <div class="login-register-link">
+          ¿No tienes cuenta?
+          <a href="registro.html">Solicitar Acceso</a>
         </div>
       </div>
     </div>
-  </main>
+  </div>
 
   <script src="js/config.js"></script>
   <script src="assets/js/api.js"></script>
-  <script src="assets/js/layout.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-      // Si ya tiene sesión activa, redirigir
       const me = await window.TC_API.auth.me();
       if (me.authenticated && me.usuario) {
-        if (me.usuario.rol === "admin" || me.usuario.rol === "profesor") {
-          location.href = "admin.html";
-        } else {
-          location.href = "campus.html";
-        }
+        location.href = "cargando.html";
         return;
       }
 
@@ -78,23 +345,15 @@
         msg.className = "status-msg";
 
         try {
-          const res = await window.TC_API.auth.login(identificador, password);
+          await window.TC_API.auth.login(identificador, password);
           msg.className = "status-msg ok";
           msg.textContent = "✅ Identificación correcta. Accediendo...";
-
           setTimeout(() => {
-            const redirectUrl = new URLSearchParams(window.location.search).get("redirect");
-            if (redirectUrl) {
-              location.href = redirectUrl;
-            } else if (res.usuario?.rol === "admin" || res.usuario?.rol === "profesor") {
-              location.href = "admin.html";
-            } else {
-              location.href = "campus.html";
-            }
-          }, 600);
+            location.href = "cargando.html";
+          }, 350);
         } catch (err) {
           btn.disabled = false;
-          btn.textContent = "Entrar al Campus →";
+          btn.textContent = "Conectar al Sistema";
           msg.className = "status-msg err";
 
           if (err.data?.estado === "pendiente") {

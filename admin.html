@@ -7,17 +7,8 @@
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="assets/tecnocore.css">
   <style>
-    .admin-nav-tabs {
-      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin: 18px 0 24px;
-      border-bottom: 1.5px solid var(--border);
-    }
-    .atab {
-      background: rgba(12, 26, 50, 0.7); border: 1.5px solid var(--border); color: var(--muted);
-      padding: 10px 16px; border-radius: 12px; font: 800 13px var(--sans); cursor: pointer; white-space: nowrap;
-      transition: 0.18s; display: inline-flex; align-items: center; gap: 6px;
-    }
-    .atab:hover { border-color: var(--sky); color: #fff; }
-    .atab.active { background: var(--sky); color: #03101d; border-color: var(--sky); }
+    .admin-nav-tabs { display: none !important; } /* Reemplazado por sidebar */
+    .atab { display: none !important; }
     .admin-tab-view { display: none; }
     .admin-tab-view.active { display: block; }
     .counter-badge {
@@ -28,48 +19,24 @@
 <body data-page="admin">
 
   <main class="wrap" style="padding-top:20px;padding-bottom:60px">
-    <!-- BLOQUEO SI NO ES ADMIN O PROFESOR -->
+    <!-- BLOQUEO SI NO ES ADMIN -->
     <div id="admin-guest-wall" class="card" style="max-width:500px;margin:50px auto;text-align:center;display:none">
       <div class="pill gold"><span class="dot"></span> ACCESO RESTRINGIDO</div>
-      <h2>Panel Exclusivo para Docentes</h2>
-      <p class="lead">Debes iniciar sesión con una cuenta de <strong>Profesor</strong> o <strong>Administrador</strong> para acceder a este panel de control.</p>
-      <a href="login.html?redirect=admin.html" class="btn btn-primary">🔐 Iniciar Sesión como Docente</a>
+      <h2>Panel Exclusivo para Administrador</h2>
+      <p class="lead">Debes iniciar sesión con una cuenta de <strong>Administrador</strong> para acceder a este panel de control.</p>
+      <a href="login.html?redirect=admin.html" class="btn btn-primary">🔐 Iniciar Sesión como Administrador</a>
     </div>
 
     <!-- CONTENIDO DEL PANEL DOCENTE -->
     <div id="admin-app" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <div>
-          <div class="pill gold"><span class="dot"></span> GESTIÓN INTEGRAL TECNOCORE</div>
-          <h1 style="font-size:clamp(22px,4vw,32px);margin-bottom:4px">Panel de Control Docente</h1>
-          <p style="font-size:13.5px;color:var(--muted)">Base de datos PostgreSQL en vivo: usuarios, cursos, temarios Moodle, correcciones y diplomas.</p>
+          <h1 id="admin-section-title" style="font-size:clamp(22px,3.2vw,28px);margin-bottom:4px">Gestión de Usuarios</h1>
+          <p id="admin-section-subtitle" style="font-size:13.5px;color:var(--muted)">Aprueba solicitudes, gestiona roles o crea nuevas cuentas de acceso.</p>
         </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" style="padding:6px 12px;font-size:12.5px" onclick="cargarTodo()">🔄 Actualizar datos</button>
-          <a href="campus.html" class="btn btn-primary" style="padding:6px 14px;font-size:12.5px">🎓 Ver como Alumno</a>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-ghost" style="padding:8px 14px;min-height:auto;font-size:12.5px" onclick="cargarTodo()">🔄 Actualizar</button>
         </div>
-      </div>
-
-      <!-- BARRA DE PESTAÑAS -->
-      <div class="admin-nav-tabs">
-        <button class="atab active" data-tab="usuarios" onclick="switchAdminTab('usuarios')">
-          👥 Usuarios <span id="badge-count-usuarios" class="counter-badge" style="display:none">0</span>
-        </button>
-        <button class="atab" data-tab="cursos" onclick="switchAdminTab('cursos')">
-          💻 Cursos
-        </button>
-        <button class="atab" data-tab="lecciones" onclick="switchAdminTab('lecciones')">
-          📚 Temario Moodle
-        </button>
-        <button class="atab" data-tab="correcciones" onclick="switchAdminTab('correcciones')">
-          📥 Bandeja de Corrección <span id="badge-count-correcciones" class="counter-badge" style="display:none">0</span>
-        </button>
-        <button class="atab" data-tab="matriculas" onclick="switchAdminTab('matriculas')">
-          📜 Matrículas y Diplomas
-        </button>
-        <button class="atab" data-tab="leads" onclick="switchAdminTab('leads')">
-          🎯 CRM Leads Web <span id="badge-count-leads" class="counter-badge" style="display:none">0</span>
-        </button>
       </div>
 
       <!-- =================================================================== -->
@@ -96,6 +63,7 @@
             </div>
             <span id="usr-total-count" style="font-family:var(--mono);font-size:12px;color:var(--sky)"></span>
           </div>
+          <button id="btn-crear-usuario" class="btn btn-primary" style="padding:7px 14px;font-size:13px;display:none" onclick="abrirModalCrearUsuario()">+ Crear Nuevo Usuario</button>
         </div>
 
         <div class="tc-table-wrap">
@@ -359,15 +327,24 @@
               </select>
             </div>
           </div>
-          <div class="grid-2">
+          <div class="grid-3">
             <div class="field">
               <label for="c-form-precio">Precio base (€)</label>
               <input type="number" step="0.01" id="c-form-precio" class="tc-input" value="0.00">
             </div>
             <div class="field">
-              <label for="c-form-oferta">Precio oferta opcional (€)</label>
+              <label for="c-form-oferta">Precio oferta (€)</label>
               <input type="number" step="0.01" id="c-form-oferta" class="tc-input" placeholder="Opcional">
             </div>
+            <div class="field">
+              <label for="c-form-horas">Horas lectivas</label>
+              <input type="number" id="c-form-horas" class="tc-input" value="0" min="0">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="c-form-profesor">Profesor asignado al curso</label>
+            <select id="c-form-profesor" class="tc-select"></select>
           </div>
 
           <!-- PESOS DE EVALUACIÓN (DEBEN SUMAR 100%) -->
@@ -559,6 +536,78 @@
       </div>
     </div>
 
+    <!-- MODAL CREAR NUEVO USUARIO (Solo Admin) -->
+    <div class="modal-bg" id="modal-crear-usuario">
+      <div class="modal-card" style="max-width:520px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <h3>Crear Nuevo Usuario</h3>
+          <button class="drawer-close" onclick="cerrarModalCrearUsuario()">✕</button>
+        </div>
+        <form id="form-crear-usuario">
+          <div class="grid-2">
+            <div class="field">
+              <label for="new-usr-nombre">Nombre Completo *</label>
+              <input type="text" id="new-usr-nombre" class="tc-input" placeholder="Nombre y apellidos" required>
+            </div>
+            <div class="field">
+              <label for="new-usr-usuario">Username *</label>
+              <input type="text" id="new-usr-usuario" class="tc-input" placeholder="nombre_usuario" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="new-usr-email">Email *</label>
+            <input type="email" id="new-usr-email" class="tc-input" placeholder="correo@ejemplo.com" required>
+          </div>
+          <div class="field">
+            <label for="new-usr-pass">Contraseña *</label>
+            <input type="password" id="new-usr-pass" class="tc-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="new-usr-rol">Rol</label>
+              <select id="new-usr-rol" class="tc-select">
+                <option value="alumno">Alumno</option>
+                <option value="profesor">Profesor</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="new-usr-estado">Estado Inicial</label>
+              <select id="new-usr-estado" class="tc-select">
+                <option value="aprobado">Aprobado (acceso inmediato)</option>
+                <option value="pendiente">Pendiente de aprobación</option>
+              </select>
+            </div>
+          </div>
+          <div id="crear-usr-msg" class="status-msg"></div>
+          <button type="submit" id="btn-submit-crear-usr" class="btn btn-primary" style="width:100%;margin-top:8px">Crear Usuario en Base de Datos</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL CAMBIAR / GENERAR CONTRASEÑA (Solo Admin) -->
+    <div class="modal-bg" id="modal-cambiar-clave">
+      <div class="modal-card" style="max-width:440px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <h3>🔑 Cambiar / Generar Clave</h3>
+          <button class="drawer-close" onclick="cerrarModalClave()">✕</button>
+        </div>
+        <p id="clave-usr-info" style="font-size:13px;color:var(--muted);margin-bottom:14px"></p>
+        <form id="form-cambiar-clave">
+          <input type="hidden" id="clave-usr-id">
+          <div class="field">
+            <label for="clave-nueva">Nueva contraseña (mínimo 6 caracteres) *</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="clave-nueva" class="tc-input" placeholder="Introduce o genera una clave" required minlength="6">
+              <button type="button" class="btn btn-ghost" style="white-space:nowrap" onclick="generarClaveAleatoria()">🎲 Generar</button>
+            </div>
+          </div>
+          <div id="clave-usr-msg" class="status-msg"></div>
+          <button type="submit" id="btn-submit-clave" class="btn btn-primary" style="width:100%;margin-top:8px">Guardar Nueva Contraseña</button>
+        </form>
+      </div>
+    </div>
+
     <!-- MODAL CORREGIR ENTREGA -->
     <div class="modal-bg" id="modal-corregir">
       <div class="modal-card" style="max-width:640px">
@@ -593,168 +642,6 @@
         </form>
       </div>
     </div>
-
-    <!-- MODAL CREAR / EDITAR LECCIÓN CON SUBIDA A SUPABASE STORAGE -->
-    <div class="modal-bg" id="modal-leccion">
-      <div class="modal-card" style="max-width:720px;max-height:90vh;overflow-y:auto">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <h3 id="modal-leccion-titulo">Crear / Editar Ítem del Temario</h3>
-          <button class="drawer-close" onclick="cerrarModalLeccion()">✕</button>
-        </div>
-        <form id="form-guardar-leccion">
-          <input type="hidden" id="lec-form-id">
-          <input type="hidden" id="lec-form-curso-id">
-
-          <div class="grid-3">
-            <div class="field">
-              <label for="lec-form-bloque-num">Nº Bloque *</label>
-              <input type="number" id="lec-form-bloque-num" class="tc-input" value="1" min="1" required>
-            </div>
-            <div class="field">
-              <label for="lec-form-bloque-tit">Título del Bloque *</label>
-              <input type="text" id="lec-form-bloque-tit" class="tc-input" value="Bloque 1: Introducción" required>
-            </div>
-            <div class="field">
-              <label for="lec-form-orden">Orden dentro del bloque *</label>
-              <input type="number" id="lec-form-orden" class="tc-input" value="1" min="1" required>
-            </div>
-          </div>
-
-          <div class="grid-3">
-            <div class="field">
-              <label for="lec-form-tipo">Tipo de ítem *</label>
-              <select id="lec-form-tipo" class="tc-select">
-                <option value="leccion">📖 Lección</option>
-                <option value="practica_guiada">🛠️ Práctica Guiada</option>
-                <option value="examen_bloque">📝 Examen de Bloque</option>
-                <option value="proyecto_final">🏆 Proyecto Final</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="lec-form-cod">Código tema (ej. B1-T01)</label>
-              <input type="text" id="lec-form-cod" class="tc-input" placeholder="B1-T01">
-            </div>
-            <div class="field">
-              <label for="lec-form-dur">Duración (minutos)</label>
-              <input type="number" id="lec-form-dur" class="tc-input" value="15" min="0">
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="field">
-              <label for="lec-form-tit">Título de la lección *</label>
-              <input type="text" id="lec-form-tit" class="tc-input" required>
-            </div>
-            <div class="field">
-              <label for="lec-form-slug">Slug URL *</label>
-              <input type="text" id="lec-form-slug" class="tc-input" required>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="lec-form-resumen">Resumen corto</label>
-            <input type="text" id="lec-form-resumen" class="tc-input" placeholder="Breve descripción para el índice...">
-          </div>
-
-          <div class="field">
-            <label for="lec-form-teoria">Contenido teórico (Markdown / HTML)</label>
-            <textarea id="lec-form-teoria" class="tc-textarea" style="min-height:100px" placeholder="Desarrollo conceptual, comandos..."></textarea>
-          </div>
-
-          <div class="grid-2">
-            <div class="field">
-              <label for="lec-form-video">URL vídeo explicativo</label>
-              <input type="url" id="lec-form-video" class="tc-input" placeholder="https://...">
-            </div>
-            <div class="field">
-              <label for="lec-form-pres">URL presentación / diapositivas</label>
-              <input type="url" id="lec-form-pres" class="tc-input" placeholder="https://...">
-            </div>
-          </div>
-
-          <!-- SUBIDA DE ARCHIVOS A SUPABASE STORAGE -->
-          <div style="background:#040915;border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px">
-            <div style="font-size:13px;font-weight:800;color:var(--sky);margin-bottom:10px">☁️ Almacenamiento Supabase Storage (PDFs y Boletines)</div>
-            <div class="grid-2">
-              <div class="field">
-                <label for="lec-form-apuntes-file">Subir Apuntes PDF (Bucket 'apuntes')</label>
-                <input type="file" id="lec-form-apuntes-file" class="tc-input" accept=".pdf" style="padding:6px">
-                <input type="hidden" id="lec-form-apuntes-url">
-              </div>
-              <div class="field">
-                <label for="lec-form-boletin-file">Subir Boletín de Ejercicios (Bucket 'boletines')</label>
-                <input type="file" id="lec-form-boletin-file" class="tc-input" accept=".pdf" style="padding:6px">
-                <input type="hidden" id="lec-form-boletin-url">
-              </div>
-            </div>
-            <div class="field">
-              <label for="lec-form-sol-file">Subir Solucionario Oficial (Bucket 'boletines')</label>
-              <input type="file" id="lec-form-sol-file" class="tc-input" accept=".pdf" style="padding:6px">
-              <input type="hidden" id="lec-form-sol-url">
-            </div>
-          </div>
-
-          <!-- TOGGLES Y VISIBILIDAD -->
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px">
-            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
-              <input type="checkbox" id="lec-form-actividad"> Tiene Actividad Práctica
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
-              <input type="checkbox" id="lec-form-sol-visible"> Mostrar Solucionario
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
-              <input type="checkbox" id="lec-form-preview"> Vista Previa Gratis
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
-              <input type="checkbox" id="lec-form-requiere"> Requiere Anterior
-            </label>
-            <div>
-              <label for="lec-form-estado" style="font-size:11px;color:var(--muted)">Estado</label>
-              <select id="lec-form-estado" class="tc-select" style="min-height:30px;padding:2px 8px;font-size:12px">
-                <option value="publicado">Publicado</option>
-                <option value="oculto">Oculto</option>
-                <option value="programado">Programado</option>
-              </select>
-            </div>
-          </div>
-
-          <div id="lec-upload-status" style="font-size:12px;color:var(--sky);margin-bottom:10px;display:none">Subiendo archivos a Supabase Storage...</div>
-          <button type="submit" id="btn-save-leccion" class="btn btn-primary" style="width:100%">Guardar Ítem en Temario</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL ALTA DE MATRÍCULA -->
-    <div class="modal-bg" id="modal-alta-matricula">
-      <div class="modal-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <h3>Dar de Alta Matrícula</h3>
-          <button class="drawer-close" onclick="cerrarModalAltaMatricula()">✕</button>
-        </div>
-        <form id="form-alta-matricula">
-          <div class="field">
-            <label for="alta-mat-user">Seleccionar Alumno *</label>
-            <select id="alta-mat-user" class="tc-select" required></select>
-          </div>
-          <div class="field">
-            <label for="alta-mat-curso">Seleccionar Curso *</label>
-            <select id="alta-mat-curso" class="tc-select" required></select>
-          </div>
-          <div class="field">
-            <label for="alta-mat-estado">Estado Inicial</label>
-            <select id="alta-mat-estado" class="tc-select">
-              <option value="activa">Activa (Acceso inmediato)</option>
-              <option value="pendiente_pago">Pendiente de Pago</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="alta-mat-importe">Importe abonado (€)</label>
-            <input type="number" step="0.01" id="alta-mat-importe" class="tc-input" value="0.00">
-          </div>
-          <button type="submit" class="btn btn-gold" style="width:100%">Registrar Matrícula</button>
-        </form>
-      </div>
-    </div>
   </main>
 
   <script src="js/config.js"></script>
@@ -765,9 +652,25 @@
     let globalUsuarios = [];
     let soloPendientes = false;
 
+    const adminSectionMeta = {
+      usuarios: { title: "Gestión de Usuarios", sub: "Aprueba solicitudes, cambia roles o crea nuevas cuentas de acceso." },
+      cursos: { title: "Catálogo de Cursos", sub: "Crea, edita y configura los pesos de evaluación de cada formación." },
+      lecciones: { title: "Constructor de Temario Moodle", sub: "Organiza bloques, lecciones, apuntes PDF y boletines en Supabase Storage." },
+      correcciones: { title: "Bandeja de Corrección", sub: "Revisa y califica entregas de boletines, exámenes y proyectos finales." },
+      matriculas: { title: "Matrículas y Diplomas", sub: "Controla el progreso de los alumnos y emite certificados oficiales." },
+      leads: { title: "CRM Leads Web", sub: "Solicitudes de clases particulares y descargas de recursos gratuitos." }
+    };
+
     function switchAdminTab(tabName) {
-      document.querySelectorAll(".admin-nav-tabs .atab").forEach(b => b.classList.toggle("active", b.dataset.tab === tabName));
       document.querySelectorAll(".admin-tab-view").forEach(s => s.classList.toggle("active", s.id === `tab-view-${tabName}`));
+      document.querySelectorAll(".tc-sidebar-nav .tc-slink[data-admin-tab]").forEach(b => {
+        b.classList.toggle("active", b.dataset.adminTab === tabName);
+      });
+      const meta = adminSectionMeta[tabName];
+      if (meta) {
+        document.getElementById("admin-section-title").textContent = meta.title;
+        document.getElementById("admin-section-subtitle").textContent = meta.sub;
+      }
     }
 
     function calcularSumaPesos() {
@@ -792,9 +695,20 @@
       document.getElementById("c-form-est").value = curso ? curso.estado : "publicado";
       document.getElementById("c-form-precio").value = curso ? curso.precio : "0.00";
       document.getElementById("c-form-oferta").value = curso && curso.precio_oferta ? curso.precio_oferta : "";
+      document.getElementById("c-form-horas").value = curso ? (curso.duracion_estimada_horas || 0) : "0";
       document.getElementById("c-form-pej").value = curso ? curso.peso_ejercicios : "20";
       document.getElementById("c-form-pex").value = curso ? curso.peso_examenes_bloque : "50";
       document.getElementById("c-form-ppr").value = curso ? curso.peso_proyecto_final : "30";
+
+      const selProf = document.getElementById("c-form-profesor");
+      const docentes = globalUsuarios.filter(u => u.rol === "profesor" || u.rol === "admin");
+      selProf.innerHTML = docentes.map(d => `<option value="${d.id}">${d.nombre_completo} (${d.rol.toUpperCase()})</option>`).join('') || `<option value="${window.currentUser?.id || ''}">Yo mismo</option>`;
+      if (curso && curso.profesor_id) {
+        selProf.value = curso.profesor_id;
+      } else if (window.currentUser?.id) {
+        selProf.value = window.currentUser.id;
+      }
+
       calcularSumaPesos();
       document.getElementById("modal-curso").classList.add("open");
     }
@@ -853,10 +767,11 @@
             <td><span class="badge badge-${u.estado}">${u.estado.toUpperCase()}</span></td>
             <td style="font-size:12px;color:var(--muted)">${new Date(u.fecha_registro).toLocaleDateString()}</td>
             <td>
-              <div style="display:flex;gap:4px">
+              <div style="display:flex;gap:4px;flex-wrap:wrap">
                 ${u.estado !== 'aprobado' ? `<button class="btn btn-primary" style="padding:4px 8px;font-size:11px;min-height:auto" onclick="cambiarEstadoUsuario(${u.id}, 'aprobado')">✓ Aprobar</button>` : ''}
                 ${u.estado !== 'denegado' ? `<button class="btn btn-ghost" style="padding:4px 8px;font-size:11px;min-height:auto" onclick="cambiarEstadoUsuario(${u.id}, 'denegado')">Denegar</button>` : ''}
                 ${u.estado !== 'bloqueado' ? `<button class="btn btn-danger" style="padding:4px 8px;font-size:11px;min-height:auto" onclick="cambiarEstadoUsuario(${u.id}, 'bloqueado')">Bloquear</button>` : ''}
+                <button class="btn btn-ghost" style="padding:4px 8px;font-size:11px;min-height:auto" onclick='abrirModalClave(${u.id}, ${JSON.stringify(u.nombre_completo)}, ${JSON.stringify(u.usuario)})'>🔑 Clave</button>
               </div>
             </td>
           </tr>
@@ -907,7 +822,10 @@
         body.innerHTML = globalCursos.map(c => `
           <tr>
             <td style="font-family:var(--mono);color:var(--sky)">${c.codigo_curso}</td>
-            <td><strong>${c.titulo}</strong></td>
+            <td>
+              <strong>${c.titulo}</strong><br>
+              <small style="color:var(--muted)">👨‍🏫 ${c.profesor ? c.profesor.nombre_completo : 'Sin profesor asignado'}</small>
+            </td>
             <td>${c.categoria} <br><small style="color:var(--muted)">${c.nivel}</small></td>
             <td>€${c.precio} ${c.precio_oferta ? `<small style="color:var(--gold-light)">(Oferta €${c.precio_oferta})</small>` : ''}</td>
             <td style="font-family:var(--mono);font-size:12px">${c.peso_ejercicios}% / ${c.peso_examenes_bloque}% / ${c.peso_proyecto_final}%</td>
@@ -935,6 +853,8 @@
       try {
         const res = await window.TC_API.lecciones.arbol(parseInt(cursoId));
         const lecciones = res.lecciones || [];
+        window.leccionesCache = {};
+        lecciones.forEach(l => { window.leccionesCache[l.id] = l; });
 
         if (lecciones.length === 0) {
           body.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--muted)">Este curso aún no tiene temas agregados.</td></tr>`;
@@ -961,7 +881,10 @@
             </td>
             <td><span class="badge badge-${l.estado}">${l.estado.toUpperCase()}</span></td>
             <td>
-              <button class="btn btn-danger" style="padding:3px 7px;font-size:11px;min-height:auto" onclick="eliminarLeccion(${l.id})">🗑️</button>
+              <div style="display:flex;gap:4px">
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;min-height:auto" onclick="abrirModalLeccion(window.leccionesCache[${l.id}])" title="Editar lección">✏️</button>
+                <button class="btn btn-danger" style="padding:3px 7px;font-size:11px;min-height:auto" onclick="eliminarLeccion(${l.id})" title="Eliminar lección">🗑️</button>
+              </div>
             </td>
           </tr>
         `).join('');
@@ -1123,7 +1046,8 @@
                 <span class="badge badge-aprobado">GENERADO</span>
                 <div style="font-family:var(--mono);color:var(--sky);margin-top:2px">${m.codigo_diploma}</div>
                 <div style="display:flex;gap:4px;margin-top:4px">
-                  <a href="verificar-diploma.html?codigo=${encodeURIComponent(m.codigo_diploma)}" target="_blank" class="btn btn-ghost" style="padding:2px 6px;font-size:10px;min-height:auto">Ver Certificado</a>
+                  <a href="diploma.html?codigo=${encodeURIComponent(m.codigo_diploma)}" target="_blank" class="btn btn-primary" style="padding:2px 7px;font-size:10px;min-height:auto">📥 Diploma HTML</a>
+                  <a href="verificar-diploma.html?codigo=${encodeURIComponent(m.codigo_diploma)}" target="_blank" class="btn btn-ghost" style="padding:2px 6px;font-size:10px;min-height:auto">Verificar</a>
                   ${m.diploma_enviado_email ? `<span style="color:var(--green);font-size:10px">✓ Enviado Email</span>` : `<button class="btn btn-primary" style="padding:2px 6px;font-size:10px;min-height:auto" onclick="marcarEmailDiploma(${m.id})">Enviar por Email</button>`}
                 </div>
               </div>
@@ -1175,6 +1099,18 @@
         cargarMatriculas();
       } catch (err) {
         window.tcToast("Error: " + err.message, "error");
+      }
+    }
+
+    async function editarNotasMatricula(id, notasActuales) {
+      const nuevasNotas = prompt("📝 Notas del profesor para esta matrícula:", notasActuales || "");
+      if (nuevasNotas === null) return; // Cancelado
+      try {
+        await window.TC_API.matriculas.actualizar({ id, notas_profesor: nuevasNotas });
+        window.tcToast("Notas guardadas correctamente.", "success");
+        cargarMatriculas();
+      } catch (err) {
+        window.tcToast("Error al guardar notas: " + err.message, "error");
       }
     }
 
@@ -1398,6 +1334,7 @@
       const id = document.getElementById("c-form-id").value;
       const payload = {
         id: id || undefined,
+        profesor_id: parseInt(document.getElementById("c-form-profesor").value) || undefined,
         codigo_curso: document.getElementById("c-form-cod").value.trim(),
         slug: document.getElementById("c-form-slug").value.trim(),
         titulo: document.getElementById("c-form-tit").value.trim(),
@@ -1407,6 +1344,7 @@
         estado: document.getElementById("c-form-est").value,
         precio: parseFloat(document.getElementById("c-form-precio").value) || 0,
         precio_oferta: document.getElementById("c-form-oferta").value ? parseFloat(document.getElementById("c-form-oferta").value) : null,
+        duracion_estimada_horas: parseInt(document.getElementById("c-form-horas").value) || 0,
         peso_ejercicios: parseFloat(document.getElementById("c-form-pej").value) || 20,
         peso_examenes_bloque: parseFloat(document.getElementById("c-form-pex").value) || 50,
         peso_proyecto_final: parseFloat(document.getElementById("c-form-ppr").value) || 30
@@ -1461,16 +1399,118 @@
       cargarLeads();
     }
 
+    // ===== MODAL CREAR USUARIO (solo admin) =====
+    function abrirModalCrearUsuario() {
+      document.getElementById("form-crear-usuario").reset();
+      document.getElementById("crear-usr-msg").className = "status-msg";
+      document.getElementById("modal-crear-usuario").classList.add("open");
+    }
+
+    function cerrarModalCrearUsuario() {
+      document.getElementById("modal-crear-usuario").classList.remove("open");
+    }
+
+    document.getElementById("form-crear-usuario").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn-submit-crear-usr");
+      const msg = document.getElementById("crear-usr-msg");
+      btn.disabled = true;
+      btn.textContent = "Creando usuario...";
+      msg.className = "status-msg";
+
+      try {
+        const payload = {
+          nombre_completo: document.getElementById("new-usr-nombre").value.trim(),
+          usuario: document.getElementById("new-usr-usuario").value.trim(),
+          email: document.getElementById("new-usr-email").value.trim(),
+          password: document.getElementById("new-usr-pass").value,
+          rol: document.getElementById("new-usr-rol").value,
+          estado: document.getElementById("new-usr-estado").value
+        };
+
+        await window.TC_API.usuarios.crear(payload);
+        msg.className = "status-msg ok";
+        msg.textContent = "✅ Usuario creado correctamente.";
+        window.tcToast("Usuario creado con éxito", "success");
+
+        setTimeout(() => {
+          cerrarModalCrearUsuario();
+          cargarUsuarios();
+        }, 800);
+      } catch (err) {
+        msg.className = "status-msg err";
+        msg.textContent = "❌ " + (err.message || "Error al crear usuario.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Crear Usuario en Base de Datos";
+      }
+    });
+
+    // ===== MODAL CAMBIAR / GENERAR CLAVE (solo admin) =====
+    function abrirModalClave(id, nombre, usuario) {
+      document.getElementById("clave-usr-id").value = id;
+      document.getElementById("clave-usr-info").innerHTML = `Usuario: <strong style="color:#fff">${nombre}</strong> <span style="font-family:var(--mono);color:var(--accent-text)">(@${usuario})</span>`;
+      document.getElementById("clave-nueva").value = "";
+      document.getElementById("clave-usr-msg").className = "status-msg";
+      document.getElementById("modal-cambiar-clave").classList.add("open");
+    }
+
+    function cerrarModalClave() {
+      document.getElementById("modal-cambiar-clave").classList.remove("open");
+    }
+
+    function generarClaveAleatoria() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$";
+      let pass = "";
+      for (let i = 0; i < 12; i++) {
+        pass += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      document.getElementById("clave-nueva").value = pass;
+    }
+
+    document.getElementById("form-cambiar-clave").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("clave-usr-id").value;
+      const nuevaPass = document.getElementById("clave-nueva").value;
+      const btn = document.getElementById("btn-submit-clave");
+      const msg = document.getElementById("clave-usr-msg");
+
+      btn.disabled = true;
+      btn.textContent = "Actualizando...";
+      msg.className = "status-msg";
+
+      try {
+        await window.TC_API.usuarios.actualizar(id, null, null, nuevaPass);
+        msg.className = "status-msg ok";
+        msg.textContent = "✅ Contraseña actualizada correctamente.";
+        window.tcToast("Clave actualizada con éxito", "success");
+        setTimeout(() => cerrarModalClave(), 900);
+      } catch (err) {
+        msg.className = "status-msg err";
+        msg.textContent = "❌ " + (err.message || "Error al cambiar la contraseña.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Guardar Nueva Contraseña";
+      }
+    });
+
     document.addEventListener("tc:ready", (e) => {
       const user = e.detail?.user;
-      if (!user || (user.rol !== "admin" && user.rol !== "profesor")) {
+      if (!user) {
         document.getElementById("admin-guest-wall").style.display = "block";
         document.getElementById("admin-app").style.display = "none";
+        return;
+      }
+      if (user.rol !== "admin") {
+        location.href = user.rol === "profesor" ? "profesor.html" : "campus.html";
         return;
       }
 
       document.getElementById("admin-guest-wall").style.display = "none";
       document.getElementById("admin-app").style.display = "block";
+
+      const btnCrear = document.getElementById("btn-crear-usuario");
+      if (btnCrear) btnCrear.style.display = "inline-flex";
 
       cargarTodo();
 

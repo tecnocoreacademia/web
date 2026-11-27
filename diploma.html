@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diploma Oficial · TecnoCore Academia</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+      background: #030712;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px 40px;
+    }
+
+    /* Barra superior de acciones (no se imprime ni se incluye al descargar) */
+    .diploma-toolbar {
+      width: 100%;
+      max-width: 1060px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+      background: rgba(11, 22, 44, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 16px;
+      padding: 12px 18px;
+      backdrop-filter: blur(10px);
+    }
+    .toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tbtn {
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(15, 31, 61, 0.8);
+      color: #f8fafc;
+      padding: 9px 16px;
+      border-radius: 11px;
+      font: 700 13px system-ui, sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: 0.18s;
+    }
+    .tbtn:hover { transform: translateY(-1px); border-color: #38bdf8; }
+    .tbtn-gold {
+      background: linear-gradient(135deg, #eab308, #ca8a04);
+      color: #090603;
+      border-color: #fde047;
+    }
+    .tbtn-primary {
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #03101d;
+      border-color: #7dd3fc;
+    }
+
+    /* Lienzo del Diploma A4 Horizontal */
+    .diploma-sheet {
+      position: relative;
+      width: 100%;
+      max-width: 1060px;
+      aspect-ratio: 297 / 210;
+      background:
+        radial-gradient(ellipse at 50% 18%, rgba(56, 189, 248, 0.16), transparent 55%),
+        radial-gradient(ellipse at 15% 85%, rgba(216, 174, 69, 0.12), transparent 50%),
+        radial-gradient(ellipse at 85% 85%, rgba(17, 94, 140, 0.22), transparent 50%),
+        linear-gradient(155deg, #061024 0%, #091936 50%, #040b1a 100%);
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.85), 0 0 60px rgba(56, 189, 248, 0.12);
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Marcos decorativos */
+    .diploma-frame-outer {
+      position: relative;
+      flex: 1;
+      border: 2.5px solid #d8ae45;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      background: rgba(4, 10, 24, 0.35);
+    }
+    .diploma-frame-inner {
+      position: relative;
+      flex: 1;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 8px;
+      padding: 28px 46px 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    /* Marca de agua central */
+    .watermark {
+      position: absolute;
+      top: 52%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 420px;
+      height: 420px;
+      opacity: 0.045;
+      pointer-events: none;
+    }
+
+    /* Esquinas SVG ornamentales */
+    .corner {
+      position: absolute;
+      width: 78px;
+      height: 78px;
+      pointer-events: none;
+    }
+    .corner-tl { top: 8px; left: 8px; }
+    .corner-tr { top: 8px; right: 8px; transform: scaleX(-1); }
+    .corner-bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+    .corner-br { bottom: 8px; right: 8px; transform: scale(-1, -1); }
+
+    /* Cabecera con Logo Grande */
+    .dip-header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .dip-logo-wrap {
+      position: relative;
+      width: 112px;
+      height: 112px;
+      display: grid;
+      place-items: center;
+    }
+    .dip-logo-glow {
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.32), rgba(216, 174, 69, 0.16), transparent 70%);
+    }
+    .dip-logo-wrap svg {
+      position: relative;
+      width: 108px;
+      height: 108px;
+      filter: drop-shadow(0 6px 20px rgba(56, 189, 248, 0.35));
+    }
+    .dip-academia {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #fde047;
+    }
+    .dip-title {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #ffffff;
+      text-shadow: 0 2px 14px rgba(56, 189, 248, 0.25);
+    }
+
+    /* Cuerpo principal */
+    .dip-body {
+      position: relative;
+      z-index: 2;
+      max-width: 820px;
+      width: 100%;
+    }
+    .dip-intro {
+      font-size: 13.5px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #94b2d4;
+      margin-bottom: 6px;
+    }
+    .dip-student {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 40px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #ffffff 0%, #bae6fd 50%, #fde047 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.15;
+      margin-bottom: 4px;
+    }
+    .dip-student-handle {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: #7dd3fc;
+      margin-bottom: 12px;
+    }
+    .dip-desc {
+      font-size: 14.5px;
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .dip-course {
+      font-size: 24px;
+      font-weight: 900;
+      color: #38bdf8;
+      letter-spacing: 0.4px;
+      margin-bottom: 14px;
+    }
+
+    /* Tarjetas de métricas académicas */
+    .dip-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      background: rgba(7, 19, 42, 0.78);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 12px;
+      padding: 12px 18px;
+      margin: 0 auto;
+    }
+    .dip-metric-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94b2d4;
+      margin-bottom: 3px;
+    }
+    .dip-metric-val {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .dip-metric-val.gold { color: #fde047; }
+    .dip-metric-val.sky { color: #7dd3fc; }
+
+    /* Pie con firmas y sello */
+    .dip-footer {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: end;
+      gap: 24px;
+      padding-top: 8px;
+    }
+    .dip-sign-block {
+      text-align: center;
+    }
+    .dip-sign-line {
+      width: 210px;
+      margin: 0 auto 6px;
+      border-bottom: 1.5px solid rgba(216, 174, 69, 0.55);
+      padding-bottom: 4px;
+      font-family: Georgia, serif;
+      font-style: italic;
+      font-size: 16px;
+      color: #e2e8f0;
+    }
+    .dip-sign-sub {
+      font-size: 11px;
+      color: #94b2d4;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .dip-seal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .dip-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10.5px;
+      color: #94b2d4;
+      background: rgba(6, 15, 32, 0.85);
+      border: 1px solid rgba(216, 174, 69, 0.35);
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+
+    #loading-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #94b2d4;
+      font-size: 15px;
+    }
+
+    @media print {
+      body { background: #030712; padding: 0; }
+      .diploma-toolbar { display: none !important; }
+      .diploma-sheet {
+        max-width: none;
+        width: 297mm;
+        height: 210mm;
+        border-radius: 0;
+        box-shadow: none;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="diploma-toolbar" id="diploma-toolbar">
+    <div style="font-size:13.5px;color:#cbd5e1">
+      🎓 <strong>Generador Oficial de Diplomas</strong> · TecnoCore Academia
+    </div>
+    <div class="toolbar-actions">
+      <button class="tbtn" onclick="history.back()">← Volver</button>
+      <button class="tbtn tbtn-primary" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+      <button class="tbtn tbtn-gold" id="btn-descargar-html" onclick="descargarDiplomaHTML()" disabled>📥 Descargar Diploma HTML</button>
+    </div>
+  </div>
+
+  <div id="loading-state">Cargando certificado oficial desde TecnoCore...</div>
+
+  <div class="diploma-sheet" id="diploma-sheet" style="display:none">
+    <div class="diploma-frame-outer">
+      <div class="diploma-frame-inner">
+
+        <!-- Esquinas ornamentales SVG (circuitos + dorado) -->
+        <svg class="corner corner-tl" viewBox="0 0 100 100" fill="none">
+          <path d="M4 96V16C4 9.373 9.373 4 16 4H96" stroke="#D8AE45" stroke-width="3"/>
+          <path d="M16 74V24C16 19.582 19.582 16 24 16H74" stroke="#38BDF8" stroke-width="1.8" stroke-opacity="0.7"/>
+          <circle cx="16" cy="16" r="5" fill="#D8AE45"/>
+          <circle cx="48" cy="16" r="3" fill="#38BDF8"/>
+          <circle cx="16" cy="48" r="3" fill="#38BDF8"/>
+          <path d="M28 28L42 28M28 28L28 42" stroke="#D8AE45" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <svg class="corner corner-tr" viewBox="0 0 100 100" fill="none">
+          <path d="M4 96V16C4 9.373 9.373 4 16 4H96" stroke="#D8AE45" stroke-width="3"/>
+          <path d="M16 74V24C16 19.582 19.582 16 24 16H74" stroke="#38BDF8" stroke-width="1.8" stroke-opacity="0.7"/>
+          <circle cx="16" cy="16" r="5" fill="#D8AE45"/>
+          <circle cx="48" cy="16" r="3" fill="#38BDF8"/>
+          <circle cx="16" cy="48" r="3" fill="#38BDF8"/>
+          <path d="M28 28L42 28M28 28L28 42" stroke="#D8AE45" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <svg class="corner corner-bl" viewBox="0 0 100 100" fill="none">
+          <path d="M4 96V16C4 9.373 9.373 4 16 4H96" stroke="#D8AE45" stroke-width="3"/>
+          <path d="M16 74V24C16 19.582 19.582 16 24 16H74" stroke="#38BDF8" stroke-width="1.8" stroke-opacity="0.7"/>
+          <circle cx="16" cy="16" r="5" fill="#D8AE45"/>
+          <circle cx="48" cy="16" r="3" fill="#38BDF8"/>
+          <circle cx="16" cy="48" r="3" fill="#38BDF8"/>
+          <path d="M28 28L42 28M28 28L28 42" stroke="#D8AE45" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <svg class="corner corner-br" viewBox="0 0 100 100" fill="none">
+          <path d="M4 96V16C4 9.373 9.373 4 16 4H96" stroke="#D8AE45" stroke-width="3"/>
+          <path d="M16 74V24C16 19.582 19.582 16 24 16H74" stroke="#38BDF8" stroke-width="1.8" stroke-opacity="0.7"/>
+          <circle cx="16" cy="16" r="5" fill="#D8AE45"/>
+          <circle cx="48" cy="16" r="3" fill="#38BDF8"/>
+          <circle cx="16" cy="48" r="3" fill="#38BDF8"/>
+          <path d="M28 28L42 28M28 28L28 42" stroke="#D8AE45" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+
+        <!-- Marca de agua central con el logo -->
+        <svg class="watermark" viewBox="0 0 1580 1580" aria-hidden="true">
+          <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <g stroke="#D8AE45" stroke-width="56">
+              <circle cx="788" cy="222" r="52"/><circle cx="560" cy="325" r="52"/><circle cx="1017" cy="325" r="52"/>
+              <path d="M788 280V640M610 372L692 450V570M968 372L886 450V570"/>
+            </g>
+            <path d="M265 578H200V1160Q200 1240 282 1240C500 1240 650 1250 700 1310Q790 1400 880 1310C930 1250 1080 1240 1298 1240Q1378 1240 1378 1160V578H1313" stroke="#38BDF8" stroke-width="60"/>
+            <path d="M295 480C520 485 700 540 790 665C880 540 1060 485 1285 480V1118C1060 1125 900 1170 840 1262L790 1305L740 1262C680 1170 520 1125 295 1118Z" stroke="#38BDF8" stroke-width="60"/>
+            <circle cx="790" cy="790" r="735" stroke="#38BDF8" stroke-width="64"/>
+          </g>
+        </svg>
+
+        <!-- CABECERA CON LOGO OFICIAL GRANDE -->
+        <div class="dip-header">
+          <div class="dip-logo-wrap">
+            <div class="dip-logo-glow"></div>
+            <svg viewBox="0 0 1580 1580" aria-hidden="true">
+              <circle cx="790" cy="790" r="735" fill="#fff"/>
+              <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <g stroke="#D8AE45" stroke-width="56">
+                  <circle cx="788" cy="222" r="52"/><circle cx="560" cy="325" r="52"/><circle cx="1017" cy="325" r="52"/>
+                  <path d="M788 280V640M610 372L692 450V570M968 372L886 450V570"/>
+                </g>
+                <path d="M265 578H200V1160Q200 1240 282 1240C500 1240 650 1250 700 1310Q790 1400 880 1310C930 1250 1080 1240 1298 1240Q1378 1240 1378 1160V578H1313" stroke="#115E8C" stroke-width="60"/>
+                <path d="M295 480C520 485 700 540 790 665C880 540 1060 485 1285 480V1118C1060 1125 900 1170 840 1262L790 1305L740 1262C680 1170 520 1125 295 1118Z" fill="#fff" stroke="#2BB3D3" stroke-width="60"/>
+                <path d="M790 665V1290" stroke="#2BB3D3" stroke-width="60"/>
+                <path d="M920 745L1005 845L920 935M1060 940H1180" stroke="#115E8C" stroke-width="50"/>
+                <circle cx="790" cy="790" r="735" stroke="#115E8C" stroke-width="64"/>
+              </g>
+            </svg>
+          </div>
+          <div class="dip-academia">★ TecnoCore Academia Tecnológica ★</div>
+          <h1 class="dip-title">DIPLOMA OFICIAL DE APROVECHAMIENTO</h1>
+        </div>
+
+        <!-- CUERPO DEL DIPLOMA -->
+        <div class="dip-body">
+          <div class="dip-intro">Se otorga el presente certificado académico a</div>
+          <div class="dip-student" id="d-alumno">Nombre del Alumno</div>
+          <div class="dip-student-handle" id="d-usuario"></div>
+          <p class="dip-desc">
+            Por haber cursado, superado todas las pruebas prácticas y completado con éxito el programa formativo:
+          </p>
+          <div class="dip-course" id="d-curso">Curso TecnoCore</div>
+
+          <div class="dip-metrics">
+            <div>
+              <div class="dip-metric-label">Carga Lectiva</div>
+              <div class="dip-metric-val sky" id="d-horas">0 horas</div>
+            </div>
+            <div>
+              <div class="dip-metric-label">Calificación Final</div>
+              <div class="dip-metric-val gold" id="d-nota">Aprobado</div>
+            </div>
+            <div>
+              <div class="dip-metric-label">Código Curso</div>
+              <div class="dip-metric-val" id="d-cod-curso">TC</div>
+            </div>
+            <div>
+              <div class="dip-metric-label">Fecha de Emisión</div>
+              <div class="dip-metric-val" id="d-fecha">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIE: FIRMA PROFESOR + SELLO DORADO + FIRMA ACADEMIA -->
+        <div class="dip-footer">
+          <div class="dip-sign-block">
+            <div class="dip-sign-line" id="d-profesor">Profesor Titular</div>
+            <div class="dip-sign-sub">Docente Responsable del Curso</div>
+          </div>
+
+          <div class="dip-seal">
+            <!-- Sello dorado SVG con laurel y estrella -->
+            <svg width="74" height="74" viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="44" r="30" fill="rgba(216,174,69,0.16)" stroke="#D8AE45" stroke-width="3"/>
+              <circle cx="50" cy="44" r="23" stroke="#FDE047" stroke-width="1.2" stroke-dasharray="3 3"/>
+              <path d="M38 68L32 94L45 86L50 94L55 86L68 94L62 68" fill="#D8AE45" fill-opacity="0.85"/>
+              <path d="M50 26L55 37L67 38L58 46L60 58L50 52L40 58L42 46L33 38L45 37Z" fill="#FDE047"/>
+            </svg>
+            <div class="dip-code" id="d-codigo">TC-CODE</div>
+          </div>
+
+          <div class="dip-sign-block">
+            <div class="dip-sign-line">Dirección Académica</div>
+            <div class="dip-sign-sub">TecnoCore Academia · LMS Oficial</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script>
+    let diplomaData = null;
+
+    async function cargarDiploma() {
+      const params = new URLSearchParams(window.location.search);
+      const codigo = params.get("codigo");
+      const loading = document.getElementById("loading-state");
+
+      if (!codigo) {
+        loading.innerHTML = "❌ No se especificó ningún código de diploma.";
+        return;
+      }
+
+      try {
+        const data = await window.TC_API.diplomas.verificar(codigo);
+        if (!data || !data.valido) {
+          loading.innerHTML = "❌ Diploma no encontrado o inválido.";
+          return;
+        }
+
+        diplomaData = data;
+        document.getElementById("d-alumno").textContent = data.alumno_nombre;
+        document.getElementById("d-usuario").textContent = data.alumno_usuario ? `@${data.alumno_usuario}` : "";
+        document.getElementById("d-curso").textContent = data.curso_titulo;
+        document.getElementById("d-cod-curso").textContent = data.codigo_curso;
+        document.getElementById("d-horas").textContent = `${data.horas || 0} horas`;
+        document.getElementById("d-nota").textContent = data.nota_final !== null && data.nota_final !== undefined
+          ? `${parseFloat(data.nota_final).toFixed(2)} / 10`
+          : "Aprobado";
+        document.getElementById("d-fecha").textContent = data.fecha_emision
+          ? new Date(data.fecha_emision).toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" })
+          : new Date().toLocaleDateString("es-ES");
+        document.getElementById("d-profesor").textContent = data.profesor_nombre || "Profesor TecnoCore";
+        document.getElementById("d-codigo").textContent = data.codigo_diploma;
+
+        document.title = `Diploma · ${data.alumno_nombre} · ${data.codigo_diploma}`;
+        loading.style.display = "none";
+        document.getElementById("diploma-sheet").style.display = "flex";
+        document.getElementById("btn-descargar-html").disabled = false;
+      } catch (err) {
+        loading.innerHTML = `❌ Error al cargar el diploma: ${err.message}`;
+      }
+    }
+
+    function descargarDiplomaHTML() {
+      if (!diplomaData) return;
+      const clone = document.documentElement.cloneNode(true);
+      const toolbar = clone.querySelector("#diploma-toolbar");
+      if (toolbar) toolbar.remove();
+      const loading = clone.querySelector("#loading-state");
+      if (loading) loading.remove();
+      clone.querySelectorAll("script").forEach(s => s.remove());
+
+      const htmlContent = "<!DOCTYPE html>\n" + clone.outerHTML;
+      const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const safeName = (diplomaData.alumno_nombre || "Alumno").replace(/[^a-zA-Z0-9_-]+/g, "_");
+      a.href = url;
+      a.download = `Diploma_${safeName}_${diplomaData.codigo_diploma}.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener("DOMContentLoaded", cargarDiploma);
+  </script>
+</body>
+</html>

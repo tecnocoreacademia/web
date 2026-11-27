@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="assets/tecnocore.css">
 </head>
-<body data-page="campus">
+<body data-page="aula">
 
   <main class="wrap" style="padding-top:16px;padding-bottom:50px">
     <!-- SUB-NAV DEL CURSO -->
@@ -148,8 +148,15 @@
 
             <form id="form-subir-examen">
               <div class="field">
-                <label for="ex-archivo">Enlace al archivo del proyecto o memoria de examen (URL)</label>
-                <input type="url" id="ex-archivo" class="tc-input" placeholder="https://..." required>
+                <label for="ex-archivo-input">Subir archivo de examen o proyecto (.pdf, .zip, .sh, .py, .txt, .docx)</label>
+                <input type="file" id="ex-archivo-input" class="tc-input" accept=".sh,.py,.pdf,.zip,.tar.gz,.txt,.md,.doc,.docx" style="padding:8px">
+                <div id="ex-upload-progress" style="display:none;font-size:12px;color:var(--sky);margin-top:6px">
+                  ⏳ Subiendo archivo a Supabase Storage...
+                </div>
+              </div>
+              <div class="field">
+                <label for="ex-archivo">O pega un enlace externo (GitHub / Drive / URL opcional)</label>
+                <input type="url" id="ex-archivo" class="tc-input" placeholder="https://...">
               </div>
               <div class="field">
                 <label for="ex-comentario">Observaciones del alumno</label>
@@ -473,6 +480,7 @@
       const status = document.getElementById("ent-msg-status");
 
       const codigo = document.getElementById("ent-codigo").value.trim();
+      const comentario = document.getElementById("ent-comentario").value.trim();
       const fileInput = document.getElementById("ent-archivo-input");
       let archivo = document.getElementById("ent-archivo").value.trim();
       let nombreArchivo = null;
@@ -522,26 +530,48 @@
       e.preventDefault();
       const btn = document.getElementById("btn-enviar-examen");
       const status = document.getElementById("ex-msg-status");
-      const archivo = document.getElementById("ex-archivo").value.trim();
+      const fileInput = document.getElementById("ex-archivo-input");
+      let archivo = document.getElementById("ex-archivo").value.trim();
+      let nombreArchivo = null;
       const comentario = document.getElementById("ex-comentario").value.trim();
+
+      if (!archivo && (!fileInput.files || fileInput.files.length === 0)) {
+        status.className = "status-msg err";
+        status.textContent = "Debes seleccionar un archivo o pegar un enlace para enviar la evaluación.";
+        return;
+      }
 
       btn.disabled = true;
       btn.textContent = "Enviando prueba...";
 
       try {
+        if (fileInput.files && fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          document.getElementById("ex-upload-progress").style.display = "block";
+          const uploadRes = await window.TC_API.storage.upload("entregas", file);
+          archivo = uploadRes.url;
+          nombreArchivo = file.name;
+          document.getElementById("ex-upload-progress").style.display = "none";
+        }
+
+        const lecActual = leccionesList.find(l => l.id === currentLeccionId);
+        const tipoEval = lecActual?.tipo_item === "proyecto_final" ? "proyecto_final" : "examen_bloque";
+
         await window.TC_API.examenes.enviar({
           curso_id: cursoData.id,
           leccion_id: currentLeccionId,
-          tipo_evaluacion: "examen_bloque",
+          tipo_evaluacion: tipoEval,
           archivo_proyecto_url: archivo,
-          nombre_archivo: archivo.split("/").pop(),
+          nombre_archivo: nombreArchivo || (archivo ? archivo.split("/").pop() : null),
           comentario_alumno: comentario || null
         });
 
         status.className = "status-msg ok";
         status.textContent = "✅ ¡Prueba enviada! Pendiente de calificación.";
+        document.getElementById("form-subir-examen").reset();
         cargarHistorialExamenes(currentLeccionId);
       } catch (err) {
+        document.getElementById("ex-upload-progress").style.display = "none";
         status.className = "status-msg err";
         status.textContent = "❌ " + err.message;
       } finally {

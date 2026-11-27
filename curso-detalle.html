@@ -105,7 +105,8 @@
             </div>
 
             <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);font-size:12.5px;color:var(--muted)">
-              <div>⏱️ <strong id="c-horas">0</strong> horas lectivas estimadas</div>
+              <div>👨‍🏫 Profesor: <strong id="c-profesor" style="color:#fff">TecnoCore</strong></div>
+              <div style="margin-top:4px">⏱️ <strong id="c-horas">0</strong> horas lectivas estimadas</div>
               <div style="margin-top:4px">🎓 Diploma emitido al aprobar</div>
             </div>
           </div>
@@ -185,6 +186,7 @@
         document.getElementById("c-codigo").textContent = curso.codigo_curso;
         document.getElementById("c-requisitos").textContent = curso.requisitos_previos || "Ninguno.";
         document.getElementById("c-entorno").textContent = curso.entorno_practico || "Cualquier distribución Linux (Ubuntu, Debian, Fedora, WSL).";
+        document.getElementById("c-profesor").textContent = curso.profesor ? curso.profesor.nombre_completo : "Profesor TecnoCore";
         document.getElementById("c-horas").textContent = curso.duracion_estimada_horas;
         document.getElementById("p-ejercicios").textContent = `${curso.peso_ejercicios}%`;
         document.getElementById("p-examenes").textContent = `${curso.peso_examenes_bloque}%`;

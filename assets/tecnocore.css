@@ -287,13 +287,22 @@ h2 { font-size: clamp(24px, 5.5vw, 36px); font-weight: 900; line-height: 1.15; l
 
 .modal-bg {
   position: fixed; inset: 0; background: rgba(2, 5, 14, 0.82); backdrop-filter: blur(8px);
-  z-index: 200; display: none; place-items: center; padding: 16px;
+  z-index: 200; display: none; place-items: start center; padding: 20px 16px;
+  overflow-y: auto;
 }
 .modal-bg.open { display: grid; }
 .modal-card {
   width: 100%; max-width: 440px; background: #081226; border: 1.5px solid var(--border-hi);
   border-radius: 24px; padding: 26px 22px; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8);
+  max-height: calc(100dvh - 40px); overflow-y: auto;
+  /* Scroll suave dentro del modal */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-border, rgba(56,189,248,0.3)) transparent;
+  margin: auto;
 }
+
+/* Bloqueo de scroll del body cuando hay modal abierto */
+body.modal-open { overflow: hidden; }
 
 .status-msg {
   margin-top: 12px; padding: 12px 14px; border-radius: 12px; font-size: 13.5px; font-weight: 700; display: none;
@@ -484,4 +493,360 @@ footer {
 }
 .tc-toast-success { border-color: var(--green); }
 .tc-toast-error { border-color: var(--red); }
+
+/* ========================================================================= */
+/* PLATAFORMA PRIVADA: SIDEBAR IZQUIERDO FORMATO BOCADILLO & ANTI-FATIGA     */
+/* Solo activo en vistas de administrador, profesor y alumno                 */
+/* ========================================================================= */
+body.tc-platform-mode {
+  padding-top: 0 !important;
+  background: #040914;
+}
+body.tc-platform-mode::before {
+  opacity: 0.45;
+}
+
+.tc-shell {
+  display: flex;
+  min-height: 100dvh;
+  width: 100%;
+}
+
+.tc-sidebar {
+  width: 268px;
+  flex-shrink: 0;
+  background: #060d1c;
+  border-right: 1px solid rgba(56, 189, 248, 0.14);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 14px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 150;
+  transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tc-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 6px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 14px;
+}
+
+.tc-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(12, 25, 48, 0.65);
+  border: 1px solid rgba(56, 189, 248, 0.14);
+  margin-bottom: 16px;
+}
+
+.tc-sidebar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0284C7, #38BDF8);
+  color: #03101d;
+  font-weight: 900;
+  font-size: 14px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.tc-sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 2px;
+}
+
+.tc-sidebar-sec {
+  font: 800 10.5px var(--mono);
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: rgba(148, 178, 212, 0.65);
+  margin: 14px 10px 6px;
+}
+.tc-sidebar-sec:first-child { margin-top: 4px; }
+
+.tc-slink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font: 700 13.5px var(--sans);
+  color: #b9cde6;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.16s, color 0.16s, border-color 0.16s;
+}
+
+.tc-slink-left {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.tc-slink-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(56, 189, 248, 0.08);
+  color: var(--sky);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: 0.16s;
+}
+
+.tc-slink-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tc-slink:hover {
+  background: rgba(56, 189, 248, 0.08);
+  color: #fff;
+}
+
+.tc-slink.active {
+  background: rgba(56, 189, 248, 0.14);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #fff;
+}
+
+.tc-slink.active .tc-slink-icon {
+  background: linear-gradient(135deg, #38BDF8, #0284C7);
+  color: #03101d;
+}
+
+.tc-sidebar-foot {
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tc-platform-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: 268px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.tc-platform-topbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: rgba(6, 13, 28, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.14);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.tc-platform-content {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 28px 60px;
+}
+
+/* Reducción de fatiga visual y tamaño compacto en plataforma privada */
+body.tc-platform-mode {
+  --accent: #38BDF8;
+  --accent-strong: #0284C7;
+  --accent-soft: rgba(56, 189, 248, 0.13);
+  --accent-border: rgba(56, 189, 248, 0.34);
+  --accent-text: #bae6fd;
+  font-size: 14px;
+}
+
+/* Tema Morado — Administrador */
+body.tc-theme-admin {
+  --accent: #a855f7;
+  --accent-strong: #7c3aed;
+  --accent-soft: rgba(168, 85, 247, 0.15);
+  --accent-border: rgba(168, 85, 247, 0.38);
+  --accent-text: #e9d5ff;
+  background: radial-gradient(80% 40% at 65% 0%, rgba(124, 58, 237, 0.14), transparent 65%), #05040d;
+}
+
+/* Tema Naranja / Amarillo — Profesor */
+body.tc-theme-profesor {
+  --accent: #f59e0b;
+  --accent-strong: #ea580c;
+  --accent-soft: rgba(245, 158, 11, 0.15);
+  --accent-border: rgba(245, 158, 11, 0.38);
+  --accent-text: #fde68a;
+  background: radial-gradient(80% 40% at 65% 0%, rgba(234, 88, 12, 0.13), transparent 65%), #090603;
+}
+
+/* Tema Azul — Alumno */
+body.tc-theme-alumno {
+  --accent: #38BDF8;
+  --accent-strong: #0284C7;
+  --accent-soft: rgba(56, 189, 248, 0.14);
+  --accent-border: rgba(56, 189, 248, 0.35);
+  --accent-text: #bae6fd;
+  background: radial-gradient(80% 40% at 65% 0%, rgba(2, 132, 199, 0.16), transparent 65%), #040914;
+}
+
+body.tc-platform-mode .tc-sidebar {
+  border-right-color: var(--accent-border);
+}
+
+body.tc-theme-admin .tc-sidebar { background: #090616; }
+body.tc-theme-profesor .tc-sidebar { background: #100a05; }
+body.tc-theme-alumno .tc-sidebar { background: #060d1c; }
+
+body.tc-platform-mode .tc-sidebar-user {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+
+body.tc-platform-mode .tc-sidebar-avatar {
+  background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+  color: #ffffff;
+}
+
+body.tc-platform-mode .tc-slink-icon {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+body.tc-platform-mode .tc-slink.active {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  color: #fff;
+}
+
+body.tc-platform-mode .tc-slink.active .tc-slink-icon {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #ffffff;
+}
+
+body.tc-platform-mode .btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #ffffff;
+  box-shadow: 0 6px 20px var(--accent-soft);
+}
+
+body.tc-platform-mode h1 { font-size: clamp(20px, 2.4vw, 25px); margin-bottom: 6px; }
+body.tc-platform-mode h2 { font-size: clamp(17px, 1.9vw, 21px); margin-bottom: 8px; }
+body.tc-platform-mode h3 { font-size: 16px; }
+body.tc-platform-mode .lead { font-size: 14px; margin-bottom: 14px; }
+
+body.tc-platform-mode .btn {
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+body.tc-platform-mode .tc-input,
+body.tc-platform-mode .tc-select,
+body.tc-platform-mode .tc-textarea {
+  min-height: 38px;
+  padding: 7px 11px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  border-color: var(--accent-border);
+}
+
+body.tc-platform-mode .tc-platform-content {
+  padding: 20px 24px 48px;
+}
+
+body.tc-platform-mode .card {
+  background: rgba(10, 16, 32, 0.78);
+  border-color: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+}
+body.tc-platform-mode .card:hover {
+  border-color: var(--accent-border);
+}
+
+body.tc-platform-mode .tc-table-wrap {
+  background: rgba(8, 12, 24, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+}
+
+body.tc-platform-mode .tc-table th {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 13px;
+  color: var(--accent-text);
+  font-size: 11px;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+body.tc-platform-mode .tc-table td {
+  padding: 10px 13px;
+  font-size: 13px;
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+
+body.tc-platform-mode .tc-table tr:hover td {
+  background: var(--accent-soft);
+}
+
+/* Botón cerrar sidebar solo en móvil */
+.tc-sidebar-close {
+  display: none;
+}
+
+/* Responsive: en móvil/tablet el sidebar funciona como bocadillo deslizable */
+@media (max-width: 960px) {
+  .tc-sidebar {
+    transform: translateX(-105%);
+    box-shadow: 20px 0 60px rgba(0, 0, 0, 0.75);
+  }
+  .tc-sidebar.open {
+    transform: translateX(0);
+  }
+  .tc-sidebar-close {
+    display: grid;
+    place-items: center;
+  }
+  .tc-platform-main {
+    margin-left: 0;
+  }
+  .tc-platform-topbar {
+    display: flex;
+  }
+  .tc-platform-content {
+    padding: 20px 16px 50px;
+  }
+}
 

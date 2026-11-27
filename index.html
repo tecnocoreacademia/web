@@ -151,20 +151,19 @@
     document.addEventListener("DOMContentLoaded", async () => {
       const container = document.getElementById("cursos-destacados-grid");
       try {
-        const res = await window.TC_API.cursos.listar({ destacados: "true" });
-        const cursos = res.cursos || [];
+        let res = await window.TC_API.cursos.listar({ destacados: "true" });
+        let cursos = res.cursos || [];
 
         if (cursos.length === 0) {
-          // Fallback visual si la base de datos está recién inicializada
+          // Si no hay cursos marcados como destacados, mostrar los publicados reales de la BD
+          res = await window.TC_API.cursos.listar({ publico: "true" });
+          cursos = (res.cursos || []).slice(0, 3);
+        }
+
+        if (cursos.length === 0) {
           container.innerHTML = `
-            <div class="card" style="border-color:var(--border-hi)">
-              <span class="badge badge-publicado">DESDE CERO</span>
-              <h3 style="margin-top:10px">Curso Cero de Bash y Terminal Linux</h3>
-              <p>Aprende desde la base los comandos de Linux, pipes, scripts automatizados y gestión de permisos.</p>
-              <div style="margin:14px 0;display:flex;align-items:baseline;gap:8px">
-                <strong style="font-size:22px;color:var(--gold-light)">Gratis</strong>
-              </div>
-              <a href="cursos.html" class="btn btn-primary" style="font-size:13px">Ver Detalles del Curso →</a>
+            <div class="card" style="grid-column:1/-1;text-align:center;padding:32px">
+              <p style="color:var(--muted)">Actualmente no hay cursos publicados en el catálogo. Vuelve pronto.</p>
             </div>
           `;
           return;

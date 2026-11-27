@@ -69,6 +69,10 @@
         location.href = "login.html?redirect=campus.html";
         return;
       }
+      if (user.rol !== "alumno") {
+        location.href = user.rol === "admin" ? "admin.html" : "profesor.html";
+        return;
+      }
 
       document.getElementById("campus-saludo").textContent = `Hola, ${user.nombre_completo.split(' ')[0]} 👋`;
 
@@ -127,8 +131,9 @@
                     <div style="font-size:12px;color:var(--sky);font-family:var(--mono)">${m.codigo_diploma}</div>
                   </div>
                   <div style="display:flex;gap:6px">
-                    <a href="verificar-diploma.html?codigo=${encodeURIComponent(m.codigo_diploma)}" target="_blank" class="btn btn-ghost" style="padding:5px 10px;font-size:11px">🛡️ Ver Certificado</a>
-                    <button class="btn btn-primary" style="padding:5px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${m.codigo_diploma}'); window.tcToast('Código copiado al portapapeles', 'success');">📋 Copiar Código</button>
+                    <a href="diploma.html?codigo=${encodeURIComponent(m.codigo_diploma)}" target="_blank" class="btn btn-primary" style="padding:5px 10px;font-size:11px">📥 Diploma HTML</a>
+                    <a href="verificar-diploma.html?codigo=${encodeURIComponent(m.codigo_diploma)}" target="_blank" class="btn btn-ghost" style="padding:5px 10px;font-size:11px">🛡️ Verificar</a>
+                    <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${m.codigo_diploma}'); window.tcToast('Código copiado al portapapeles', 'success');">📋 Copiar</button>
                   </div>
                 </div>
               `;
@@ -154,6 +159,7 @@
                     <span style="font-size:12px;color:var(--muted);font-family:var(--mono)">${c.codigo_curso || ''}</span>
                   </div>
                   <h3 style="font-size:18px">${c.titulo || 'Curso'}</h3>
+                  <div style="font-size:12px;color:var(--accent-text,var(--sky));margin-top:4px;font-weight:700">👨‍🏫 Prof. ${c.profesor ? c.profesor.nombre_completo : 'TecnoCore'}</div>
                   <p style="font-size:13px;color:var(--muted);margin:6px 0 12px">${c.descripcion_corta || ''}</p>
 
                   <div style="margin-bottom:12px">
@@ -192,6 +198,7 @@
               <div>
                 <span class="badge badge-publicado">${c.nivel.toUpperCase().replace('_', ' ')}</span>
                 <h4 style="font-size:16px;margin:8px 0 4px">${c.titulo}</h4>
+                <div style="font-size:11.5px;color:var(--accent-text,var(--sky));margin-bottom:4px">👨‍🏫 ${c.profesor ? c.profesor.nombre_completo : 'TecnoCore'}</div>
                 <p style="font-size:12.5px;color:var(--muted)">${c.descripcion_corta || ''}</p>
               </div>
               <div style="margin-top:14px">
@@ -202,6 +209,11 @@
         }
       } catch (err) {
         console.error("Error al cargar campus:", err);
+        document.getElementById("mis-cursos-grid").innerHTML = `
+          <div class="card" style="grid-column:1/-1;text-align:center;padding:30px;border-color:rgba(239,68,68,0.4)">
+            <p style="color:#fca5a5">No se pudieron cargar tus cursos matriculados: ${err.message}</p>
+          </div>
+        `;
       }
     });
   </script>

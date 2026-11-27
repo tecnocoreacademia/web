@@ -286,10 +286,20 @@ const TC_API = (() => {
         const query = new URLSearchParams(params).toString();
         return await request(`admin-usuarios${query ? '?' + query : ''}`, { method: "GET" });
       },
-      async actualizar(id, estado, rol) {
+      async crear(userData) {
+        return await request("admin-usuarios", {
+          method: "POST",
+          body: JSON.stringify(userData)
+        });
+      },
+      async actualizar(id, estado, rol, password) {
+        const body = { id };
+        if (estado !== undefined && estado !== null) body.estado = estado;
+        if (rol !== undefined && rol !== null) body.rol = rol;
+        if (password !== undefined && password !== null) body.password = password;
         return await request("admin-usuarios", {
           method: "PUT",
-          body: JSON.stringify({ id, estado, rol })
+          body: JSON.stringify(body)
         });
       }
     }

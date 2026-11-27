@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>TecnoCore Academia · Formación Práctica en Linux, Bash y FP Informática</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+</head>
+<body data-page="inicio">
+
+  <main class="wrap">
+    <!-- 1. HERO TECNOLÓGICO -->
+    <section class="section" style="padding:40px 0 20px">
+      <div style="display:grid;grid-template-columns:1fr;gap:26px;align-items:center" class="hero-grid">
+        <div>
+          <div class="pill gold"><span class="dot"></span> PLATAFORMA LMS &amp; ACADEMIA EDTECH</div>
+          <h1>Informática real, <span class="grad">sin rodeos</span> y paso a paso</h1>
+          <p class="lead">
+            Domina Linux, automatiza con Bash y aprueba tus módulos de FP (SMR y ASIR) con explicaciones claras, boletines corregidos al detalle y metodología 100% práctica.
+          </p>
+          <div class="btn-row">
+            <a href="cursos.html" class="btn btn-primary">Ver Catálogo de Cursos 🚀</a>
+            <a href="clases-particulares.html" class="btn btn-gold">Clases Particulares SMR/ASIR 🧑‍🏫</a>
+            <a href="campus.html" class="btn btn-ghost">🎓 Entrar al Campus</a>
+          </div>
+        </div>
+
+        <!-- TERMINAL DE ESTADO -->
+        <div style="background:#050b18;border:1.5px solid var(--border-hi);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 36px rgba(2,132,199,0.22);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 15px;background:#0c1932;border-bottom:1px solid var(--border);font:700 11.5px var(--mono);color:var(--muted)">
+            <div style="display:flex;gap:6px">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#eab308;display:inline-block"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block"></span>
+            </div>
+            <span>carlos@tecnocore-cloud:~</span>
+          </div>
+          <div style="padding:18px;font:13px/1.65 var(--mono);color:#d6eaff">
+            <div><span style="color:var(--sky)">$</span> cat tecnocore_info.json</div>
+            <div style="color:#4ade80">"docente": "Carlos José Prieto Delgado",</div>
+            <div>"titulacion": "Técnico Superior ASIR (Matrícula de Honor)",</div>
+            <div>"arquitectura": "PostgreSQL Nativo + LMS Propio",</div>
+            <div>"metodologia": "Aprender haciendo con terminal real"</div><br>
+            <div><span style="color:var(--sky)">$</span> ./check_plataforma.sh</div>
+            <div style="color:var(--gold-light)">[OK] Campus Virtual &amp; Aula Moodle: OPERATIVO</div>
+            <div style="color:var(--sky)">[OK] Conexión Base de Datos: CONECTADA</div>
+            <div style="color:#4ade80">[OK] Matrículas y Tutorías: ABIERTAS</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. CURSOS DESTACADOS (DINÁMICO DESDE BD) -->
+    <section class="section">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+        <div>
+          <div class="pill"><span class="dot"></span> FORMACIÓN ESPECIALIZADA</div>
+          <h2>Cursos <span class="grad">Destacados</span></h2>
+          <p style="color:var(--muted);font-size:15px">Aprende con temarios estructurados por bloques, exámenes tipo test y proyectos finales.</p>
+        </div>
+        <a href="cursos.html" class="btn btn-ghost" style="font-size:13.5px;padding:8px 16px">Ver todos los cursos →</a>
+      </div>
+
+      <div id="cursos-destacados-grid" class="grid-3">
+        <!-- Renderizado dinámico -->
+        <div style="padding:30px;text-align:center;color:var(--muted)">Cargando cursos destacados desde la base de datos...</div>
+      </div>
+    </section>
+
+    <!-- 3. CLASES PARTICULARES FP -->
+    <section class="section" style="background:rgba(6,16,36,0.6);border:1px solid var(--border);border-radius:24px;padding:32px 24px">
+      <div style="max-width:800px;margin:0 auto;text-align:center">
+        <div class="pill gold"><span class="dot"></span> REFUERZO A MEDIDA</div>
+        <h2>¿Atascado con <span class="grad">SMR o ASIR</span>?</h2>
+        <p class="lead">
+          Clases particulares individuales o en grupos reducidos para superar Sistemas Operativos en Red, Administración de Sistemas, Redes Locales, Seguridad o Bases de Datos.
+        </p>
+        <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:24px 0">
+          <span class="badge" style="background:#0b2144;color:#7dd3fc;padding:6px 14px;font-size:13px">🐧 Linux &amp; Bash Scripting</span>
+          <span class="badge" style="background:#0b2144;color:#7dd3fc;padding:6px 14px;font-size:13px">🌐 Redes y Subnetting</span>
+          <span class="badge" style="background:#0b2144;color:#7dd3fc;padding:6px 14px;font-size:13px">🗄️ SQL y Bases de Datos</span>
+          <span class="badge" style="background:#0b2144;color:#7dd3fc;padding:6px 14px;font-size:13px">💻 Windows Server &amp; PowerShell</span>
+        </div>
+        <a href="clases-particulares.html" class="btn btn-gold" style="max-width:320px;margin:0 auto">Solicitar Clase o Presupuesto →</a>
+      </div>
+    </section>
+
+    <!-- 4. RECURSOS GRATUITOS -->
+    <section class="section">
+      <div class="pill"><span class="dot"></span> MATERIAL LIBRE</div>
+      <h2>Biblioteca de <span class="grad">Recursos Gratuitos</span></h2>
+      <p style="color:var(--muted);font-size:15px;margin-bottom:20px">Descarga guías, chuletas de comandos y resúmenes para acelerar tu aprendizaje.</p>
+
+      <div class="grid-2">
+        <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+          <div>
+            <span class="badge badge-publicado">PDF GRATIS</span>
+            <h3 style="margin-top:10px">Guía Rápida: Introducción a la Terminal y Bash</h3>
+            <p>Aprende la navegación básica, gestión de ficheros, permisos octales (chmod/chown) y las tuberías esenciales.</p>
+          </div>
+          <div style="margin-top:16px">
+            <a href="recursos.html" class="btn btn-primary" style="font-size:13px">Descargar gratis con 1 clic →</a>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+          <div>
+            <span class="badge badge-publicado">CHULETA DIGITAL</span>
+            <h3 style="margin-top:10px">Comandos Esenciales para Administradores Linux</h3>
+            <p>Resumen visual de diagnósticos de red (ip, ping, netstat, ss), procesos (ps, top, systemctl) y discos.</p>
+          </div>
+          <div style="margin-top:16px">
+            <a href="recursos.html" class="btn btn-primary" style="font-size:13px">Obtener Chuleta en PDF →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. PREGUNTAS FRECUENTES -->
+    <section class="section">
+      <div class="pill"><span class="dot"></span> FAQ</div>
+      <h2>Preguntas Frecuentes</h2>
+      <div style="display:grid;gap:12px;margin-top:18px">
+        <div class="card">
+          <h3 style="font-size:16px">¿Cómo funciona el acceso al campus una vez me registro?</h3>
+          <p>Al crear tu cuenta en la web, el administrador revisa tu solicitud y la aprueba para garantizar un entorno seguro. En cuanto tu cuenta esté aprobada, podrás acceder al campus virtual.</p>
+        </div>
+        <div class="card">
+          <h3 style="font-size:16px">¿Los cursos incluyen certificado oficial?</h3>
+          <p>Sí. Al completar las lecciones y aprobar las evaluaciones con la nota mínima requerida, el profesor emite tu diploma oficial con un código único verificable en nuestro portal público.</p>
+        </div>
+        <div class="card">
+          <h3 style="font-size:16px">¿Cómo son las entregas y correcciones?</h3>
+          <p>En cada tema práctico puedes subir tu archivo o pegar tu código. El profesor lo revisa personalmente, asigna tu nota y te deja feedback detallado para que sigas mejorando.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <style>
+    @media (min-width: 880px) {
+      .hero-grid { grid-template-columns: 1.15fr 0.85fr !important; }
+    }
+  </style>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const container = document.getElementById("cursos-destacados-grid");
+      try {
+        const res = await window.TC_API.cursos.listar({ destacados: "true" });
+        const cursos = res.cursos || [];
+
+        if (cursos.length === 0) {
+          // Fallback visual si la base de datos está recién inicializada
+          container.innerHTML = `
+            <div class="card" style="border-color:var(--border-hi)">
+              <span class="badge badge-publicado">DESDE CERO</span>
+              <h3 style="margin-top:10px">Curso Cero de Bash y Terminal Linux</h3>
+              <p>Aprende desde la base los comandos de Linux, pipes, scripts automatizados y gestión de permisos.</p>
+              <div style="margin:14px 0;display:flex;align-items:baseline;gap:8px">
+                <strong style="font-size:22px;color:var(--gold-light)">Gratis</strong>
+              </div>
+              <a href="cursos.html" class="btn btn-primary" style="font-size:13px">Ver Detalles del Curso →</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = cursos.map(c => {
+          const precioHTML = c.precio_oferta
+            ? `<span style="text-decoration:line-line-through;color:var(--muted);font-size:13px;margin-right:6px">€${c.precio}</span> <strong style="font-size:20px;color:var(--gold-light)">€${c.precio_oferta}</strong>`
+            : (parseFloat(c.precio) === 0 ? `<strong style="font-size:20px;color:var(--green)">Gratis</strong>` : `<strong style="font-size:20px;color:#fff">€${c.precio}</strong>`);
+
+          return `
+            <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                  <span class="badge badge-publicado">${c.nivel.toUpperCase().replace('_', ' ')}</span>
+                  <span style="font-size:12px;color:var(--muted);font-family:var(--mono)">⏱️ ${c.duracion_estimada_horas}h</span>
+                </div>
+                <h3>${c.titulo}</h3>
+                <p style="margin-bottom:12px">${c.descripcion_corta || c.subtitulo || ''}</p>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px">
+                  ${(c.etiquetas || []).slice(0, 3).map(t => `<span style="font-size:10.5px;padding:2px 7px;border-radius:4px;background:#0c1f3f;color:var(--sky)">#${t}</span>`).join('')}
+                </div>
+              </div>
+              <div>
+                <div style="margin:10px 0;display:flex;align-items:center;justify-content:space-between">
+                  <div>${precioHTML}</div>
+                  <span style="font-size:12px;color:var(--muted)">${c.categoria}</span>
+                </div>
+                <a href="curso-detalle.html?slug=${c.slug}" class="btn btn-primary" style="font-size:13.5px">Ver Temario y Acceso →</a>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error("Error cargando destacados:", e);
+      }
+    });
+  </script>
+</body>
+</html>

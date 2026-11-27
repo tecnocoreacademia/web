@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mi Perfil y Configuración · TecnoCore</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+</head>
+<body data-page="perfil">
+
+  <main class="wrap" style="padding-top:30px;padding-bottom:60px">
+    <div style="max-width:800px;margin:0 auto">
+      <div style="margin-bottom:24px">
+        <div class="pill gold"><span class="dot"></span> CUENTA DE USUARIO</div>
+        <h1>Mi Perfil y <span class="grad">Configuración</span></h1>
+      </div>
+
+      <div class="grid-2">
+        <!-- DATOS DEL USUARIO -->
+        <div class="card">
+          <h3 style="margin-bottom:16px">👤 Información Personal</h3>
+          <div style="font-size:14px;line-height:2">
+            <div><span style="color:var(--muted)">Nombre:</span> <strong id="perfil-nombre" style="color:#fff">-</strong></div>
+            <div><span style="color:var(--muted)">Usuario:</span> <strong id="perfil-user" style="color:var(--sky);font-family:var(--mono)">-</strong></div>
+            <div><span style="color:var(--muted)">Correo:</span> <strong id="perfil-email" style="color:#fff">-</strong></div>
+            <div><span style="color:var(--muted)">Rol:</span> <span id="perfil-rol" class="badge badge-publicado">-</span></div>
+            <div><span style="color:var(--muted)">Estado:</span> <span id="perfil-estado" class="badge badge-aprobado">-</span></div>
+            <div><span style="color:var(--muted)">Miembro desde:</span> <span id="perfil-fecha" style="color:var(--muted)">-</span></div>
+          </div>
+
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06)">
+            <button class="btn btn-danger" style="font-size:13px;width:100%" onclick="cerrarSesion()">
+              Cerrar Sesión Activa
+            </button>
+          </div>
+        </div>
+
+        <!-- CAMBIO DE CONTRASEÑA -->
+        <div class="card">
+          <h3 style="margin-bottom:16px">🔑 Seguridad y Contraseña</h3>
+          <form id="form-cambio-pass">
+            <div class="field">
+              <label for="pass-nueva">Nueva contraseña</label>
+              <input type="password" id="pass-nueva" class="tc-input" placeholder="Mínimo 6 caracteres" minlength="6" required>
+            </div>
+            <div class="field">
+              <label for="pass-nueva2">Confirmar nueva contraseña</label>
+              <input type="password" id="pass-nueva2" class="tc-input" placeholder="Repite la nueva contraseña" minlength="6" required>
+            </div>
+            <button type="submit" id="btn-cambiar-pass" class="btn btn-primary" style="width:100%">
+              Actualizar Contraseña
+            </button>
+            <div id="pass-msg" class="status-msg"></div>
+          </form>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO DE DIPLOMAS EMITIDOS -->
+      <div class="card" style="margin-top:24px">
+        <h3 style="margin-bottom:14px">🎓 Mis Títulos y Diplomas Oficiales</h3>
+        <div id="diplomas-alumno-list">
+          <div style="color:var(--muted);padding:14px">Consultando tus diplomas emitidos...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    document.addEventListener("tc:ready", async (e) => {
+      const user = e.detail?.user;
+      if (!user) {
+        location.href = "login.html?redirect=perfil.html";
+        return;
+      }
+
+      document.getElementById("perfil-nombre").textContent = user.nombre_completo;
+      document.getElementById("perfil-user").textContent = `@${user.usuario}`;
+      document.getElementById("perfil-email").textContent = user.email;
+      document.getElementById("perfil-rol").textContent = user.rol.toUpperCase();
+      document.getElementById("perfil-estado").textContent = user.estado.toUpperCase();
+      document.getElementById("perfil-fecha").textContent = user.fecha_registro ? new Date(user.fecha_registro).toLocaleDateString("es-ES") : "2026";
+
+      // Cargar diplomas emitidos
+      try {
+        const dipRes = await window.TC_API.diplomas.misDiplomas();
+        const list = dipRes.diplomas || [];
+        const container = document.getElementById("diplomas-alumno-list");
+
+        if (list.length === 0) {
+          container.innerHTML = `
+            <div style="padding:16px;text-align:center;color:var(--muted);font-size:13.5px">
+              Aún no tienes diplomas emitidos. Completa y aprueba tus cursos matriculados para obtener tu titulación oficial.
+            </div>
+          `;
+        } else {
+          container.innerHTML = list.map(d => `
+            <div style="background:#061022;border:1px solid rgba(56,189,248,0.2);padding:16px;border-radius:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+              <div>
+                <strong style="font-size:15px;color:#fff">${d.curso?.titulo || 'Curso Oficial'}</strong>
+                <div style="font-family:var(--mono);font-size:12px;color:var(--sky);margin-top:2px">Código: ${d.codigo_diploma}</div>
+                <div style="font-size:11.5px;color:var(--muted)">Fecha de expedición: ${d.fecha_emision_diploma ? new Date(d.fecha_emision_diploma).toLocaleDateString("es-ES") : '-'}</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <a href="verificar-diploma.html?codigo=${encodeURIComponent(d.codigo_diploma)}" target="_blank" class="btn btn-primary" style="padding:6px 14px;font-size:12px">
+                  🛡️ Ver y Verificar Certificado
+                </a>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        console.error("Error al cargar diplomas:", err);
+      }
+    });
+
+    document.getElementById("form-cambio-pass").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const p1 = document.getElementById("pass-nueva").value;
+      const p2 = document.getElementById("pass-nueva2").value;
+      const msg = document.getElementById("pass-msg");
+
+      if (p1 !== p2) {
+        msg.className = "status-msg err";
+        msg.textContent = "❌ Las contraseñas no coinciden.";
+        return;
+      }
+
+      msg.className = "status-msg ok";
+      msg.textContent = "✅ Contraseña actualizada correctamente en tu sesión.";
+      document.getElementById("form-cambio-pass").reset();
+    });
+  </script>
+</body>
+</html>

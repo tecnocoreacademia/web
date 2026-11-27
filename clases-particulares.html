@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Clases Particulares SMR y ASIR · TecnoCore Academia</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+</head>
+<body data-page="clases">
+
+  <main class="wrap" style="padding-top:20px;padding-bottom:50px">
+    <div style="max-width:840px;margin:0 auto">
+      <div class="pill gold"><span class="dot"></span> TUTORÍAS PERSONALIZADAS</div>
+      <h1>Clases Particulares y Refuerzo <span class="grad">SMR &amp; ASIR</span></h1>
+      <p class="lead">
+        Aprende con Carlos Prieto (Técnico Superior ASIR con Matrícula de Honor y media de 9,50). Clases online o presenciales totalmente adaptadas al temario de tu instituto o a tus objetivos profesionales.
+      </p>
+
+      <div class="grid-2" style="margin:26px 0">
+        <div class="card">
+          <div style="font-size:24px;margin-bottom:8px">🌐 Modalidad Online</div>
+          <p>Clases en directo compartiendo terminal, depuración de scripts en tiempo real y resolución de exámenes anteriores.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:24px;margin-bottom:8px">📍 Modalidad Presencial</div>
+          <p>Refuerzo intensivo directo cara a cara en laboratorios y preparación de proyectos de fin de grado.</p>
+        </div>
+      </div>
+
+      <!-- FORMULARIO CONECTADO A PUBLIC.LEADS_WEB -->
+      <div class="card" style="border-color:var(--border-hi);padding:28px 24px">
+        <h3 style="font-size:21px;margin-bottom:6px">Solicitar información o reservar plaza</h3>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:20px">Completa el formulario y te responderemos en menos de 24 horas laborables.</p>
+
+        <form id="form-clases">
+          <div class="grid-2">
+            <div class="field">
+              <label for="lead-nombre">Nombre y apellidos *</label>
+              <input type="text" id="lead-nombre" class="tc-input" placeholder="Tu nombre" required>
+            </div>
+            <div class="field">
+              <label for="lead-email">Correo electrónico *</label>
+              <input type="email" id="lead-email" class="tc-input" placeholder="tu@correo.com" required>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="lead-tel">Teléfono (WhatsApp)</label>
+              <input type="tel" id="lead-tel" class="tc-input" placeholder="600 000 000">
+            </div>
+            <div class="field">
+              <label for="lead-nivel">Nivel de estudios actual</label>
+              <select id="lead-nivel" class="tc-select">
+                <option value="1º SMR">1º Grado Medio SMR</option>
+                <option value="2º SMR">2º Grado Medio SMR</option>
+                <option value="1º ASIR">1º Grado Superior ASIR</option>
+                <option value="2º ASIR">2º Grado Superior ASIR</option>
+                <option value="DAM / DAW">Grado Superior DAM / DAW</option>
+                <option value="Universidad / Grado">Grado Universitario / Ingeniería</option>
+                <option value="Autodidacta / Profesional">Profesional / Autodidacta</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="lead-asig">Asignatura o tema a reforzar *</label>
+              <input type="text" id="lead-asig" class="tc-input" placeholder="Ej. Sistemas Operativos, Bash, Redes, SQL..." required>
+            </div>
+            <div class="field">
+              <label for="lead-modalidad">Modalidad preferida</label>
+              <select id="lead-modalidad" class="tc-select">
+                <option value="online">Online (En directo)</option>
+                <option value="presencial">Presencial</option>
+                <option value="indiferente">Indiferente</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="lead-msg">Cuéntanos qué necesitas (exámenes pendientes, fechas, dudas específicas)</label>
+            <textarea id="lead-msg" class="tc-textarea" placeholder="Explícanos tu situación actual y tu disponibilidad..."></textarea>
+          </div>
+
+          <button type="submit" id="btn-submit-lead" class="btn btn-gold" style="width:100%;font-size:16px">Enviar solicitud de clase →</button>
+          <div id="lead-status" class="status-msg"></div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    document.getElementById("form-clases").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn-submit-lead");
+      const status = document.getElementById("lead-status");
+
+      btn.disabled = true;
+      btn.textContent = "Enviando solicitud...";
+      status.className = "status-msg";
+
+      const payload = {
+        tipo_solicitud: "clases_particulares",
+        nombre: document.getElementById("lead-nombre").value.trim(),
+        email: document.getElementById("lead-email").value.trim(),
+        telefono: document.getElementById("lead-tel").value.trim() || null,
+        nivel_estudios: document.getElementById("lead-nivel").value,
+        asignatura_o_tema: document.getElementById("lead-asig").value.trim(),
+        modalidad: document.getElementById("lead-modalidad").value,
+        mensaje: document.getElementById("lead-msg").value.trim() || null
+      };
+
+      try {
+        const res = await window.TC_API.leads.enviar(payload);
+        status.className = "status-msg ok";
+        status.textContent = "✅ ¡Solicitud registrada correctamente! Te responderemos muy pronto.";
+        document.getElementById("form-clases").reset();
+      } catch (err) {
+        status.className = "status-msg err";
+        status.textContent = "❌ Error al enviar la solicitud: " + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Enviar solicitud de clase →";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,572 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Aula Virtual · TecnoCore LMS</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+</head>
+<body data-page="campus">
+
+  <main class="wrap" style="padding-top:16px;padding-bottom:50px">
+    <!-- SUB-NAV DEL CURSO -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <a href="campus.html" class="btn btn-ghost" style="padding:6px 12px;font-size:12.5px">← Mis Cursos</a>
+        <div>
+          <h2 id="aula-curso-titulo" style="font-size:18px;margin-bottom:0">Cargando curso...</h2>
+          <span id="aula-progreso-txt" style="font-size:12px;color:var(--sky);font-family:var(--mono)">Progreso: 0%</span>
+        </div>
+      </div>
+      <div id="aula-curso-badge" class="badge badge-activa">MATRÍCULA ACTIVA</div>
+    </div>
+
+    <div class="moodle-layout">
+      <!-- SIDEBAR IZQUIERDO: ÍNDICE MOODLE -->
+      <aside class="moodle-sidebar" id="sidebar-temario">
+        <div style="font-weight:800;font-size:14px;color:#fff;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+          <span>Índice del Curso</span>
+          <span id="sidebar-contador" style="font-size:11px;color:var(--muted);font-family:var(--mono)"></span>
+        </div>
+        <div id="sidebar-arbol">Cargando temario...</div>
+      </aside>
+
+      <!-- ÁREA CENTRAL DE CONTENIDO -->
+      <div id="aula-contenido-central">
+        <div id="leccion-loading" class="card" style="text-align:center;padding:40px;color:var(--muted)">
+          Cargando contenido de la lección...
+        </div>
+
+        <div id="leccion-box" style="display:none">
+          <!-- CABECERA DE LA LECCIÓN -->
+          <div class="card" style="margin-bottom:18px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:10px">
+              <div>
+                <span id="lec-tipo-badge" class="badge badge-publicado">LECCIÓN</span>
+                <span id="lec-codigo" style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:6px"></span>
+              </div>
+              <button id="btn-completar-tema" class="btn btn-primary" style="font-size:12.5px;padding:6px 14px;min-height:auto">
+                ✓ Marcar como completada
+              </button>
+            </div>
+            <h1 id="lec-titulo" style="font-size:clamp(20px,4vw,28px);margin-bottom:6px">Título de la lección</h1>
+            <p id="lec-resumen" style="font-size:14px;color:var(--muted);margin-bottom:12px"></p>
+            <div style="display:flex;gap:14px;align-items:center;font-size:12px;color:var(--muted);font-family:var(--mono)">
+              <span>⏱️ Duración estimada: <strong id="lec-duracion" style="color:#fff">0</strong> min</span>
+              <span id="lec-estado-completado" style="color:var(--green);font-weight:700;display:none">✓ Completada</span>
+            </div>
+          </div>
+
+          <!-- REPRODUCTOR DE VÍDEO (SI TIENE VIDEO_URL) -->
+          <div id="lec-video-box" style="display:none;margin-bottom:18px;border-radius:18px;overflow:hidden;border:1.5px solid var(--border);background:#020611">
+            <div style="padding:10px 14px;background:#091428;border-bottom:1px solid var(--border);font:700 12px var(--mono);color:var(--sky);display:flex;justify-content:space-between">
+              <span>📹 Clase Explicativa</span>
+              <span id="video-visto-badge" style="color:var(--green);display:none">✓ Vídeo visto</span>
+            </div>
+            <div id="lec-video-frame" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden"></div>
+          </div>
+
+          <!-- DOCUMENTOS Y APUNTES DEL PROFESOR -->
+          <div id="lec-docs-box" style="display:none;margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap">
+            <a id="btn-descarga-apuntes" href="#" target="_blank" class="btn btn-ghost" style="font-size:12.5px;padding:8px 14px;display:none">
+              📄 Descargar Apuntes PDF
+            </a>
+            <a id="btn-descarga-presentacion" href="#" target="_blank" class="btn btn-ghost" style="font-size:12.5px;padding:8px 14px;display:none">
+              📊 Ver Presentación Diapositivas
+            </a>
+          </div>
+
+          <!-- CONTENIDO TEÓRICO PRINCIPAL -->
+          <div class="card" id="lec-teoria-box" style="margin-bottom:18px">
+            <h3 style="font-size:16px;margin-bottom:12px;color:var(--sky)">📖 Desarrollo del Tema</h3>
+            <div id="lec-contenido-teoria" style="font-size:14.5px;line-height:1.75;color:#e2e8f0;white-space:pre-wrap"></div>
+          </div>
+
+          <!-- RECURSOS EXTRA (JSONB) -->
+          <div class="card" id="lec-extra-box" style="margin-bottom:18px;display:none">
+            <h4 style="font-size:14px;color:var(--gold-light);margin-bottom:10px">📎 Recursos Adicionales y Scripts</h4>
+            <div id="lec-extra-list" style="display:grid;gap:8px"></div>
+          </div>
+
+          <!-- MÓDULO DE ACTIVIDAD / BOLETÍN PRÁCTICO -->
+          <div class="card" id="modulo-actividad" style="display:none;border-color:var(--border-hi);margin-bottom:18px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h3 style="font-size:18px;color:#fff">🛠️ Actividad y Boletín Práctico</h3>
+              <span class="badge" style="background:#0c2847;color:var(--sky)" id="act-max-nota">Nota máx: 10</span>
+            </div>
+            <h4 id="act-titulo" style="font-size:15px;color:var(--sky);margin-bottom:8px">Título de la práctica</h4>
+            <div id="act-instrucciones" style="font-size:14px;color:#cbd5e1;line-height:1.6;margin-bottom:14px"></div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
+              <a id="act-boletin-btn" href="#" target="_blank" class="btn btn-ghost" style="font-size:12.5px;padding:7px 12px;display:none">
+                📥 Descargar Boletín de Ejercicios (PDF)
+              </a>
+              <a id="act-solucionario-btn" href="#" target="_blank" class="btn btn-gold" style="font-size:12.5px;padding:7px 12px;display:none">
+                🔑 Descargar Solucionario Oficial
+              </a>
+            </div>
+
+            <!-- FORMULARIO DE ENTREGA -->
+            <div style="background:#040915;padding:18px;border-radius:14px;border:1px solid rgba(56,189,248,0.2)">
+              <h4 style="font-size:14px;color:#fff;margin-bottom:10px">📤 Buzón de Entrega de Solución</h4>
+              <form id="form-subir-entrega">
+                <div class="field">
+                  <label for="ent-codigo">Código fuente o script (.sh, comandos o enlace GitHub/Drive)</label>
+                  <textarea id="ent-codigo" class="tc-textarea" placeholder="#!/bin/bash&#10;# Pega aquí tu script o solución paso a paso..." style="font-family:var(--mono);font-size:13px;min-height:120px"></textarea>
+                </div>
+                <div class="field">
+                  <label for="ent-archivo-input">Subir archivo a Supabase Storage (.sh, .zip, .pdf)</label>
+                  <input type="file" id="ent-archivo-input" class="tc-input" style="padding:8px">
+                  <input type="hidden" id="ent-archivo">
+                  <div id="ent-upload-progress" style="font-size:12px;color:var(--sky);margin-top:4px;display:none">Subiendo archivo a Supabase Storage...</div>
+                </div>
+                <div class="field">
+                  <label for="ent-comentario">Comentario o dudas para el profesor</label>
+                  <input type="text" id="ent-comentario" class="tc-input" placeholder="Ej. Me ha costado el bucle while del ejercicio 3...">
+                </div>
+                <button type="submit" id="btn-enviar-tarea" class="btn btn-primary" style="width:100%">
+                  Enviar Solución para Corrección 🚀
+                </button>
+                <div id="ent-msg-status" class="status-msg"></div>
+              </form>
+
+              <!-- HISTORIAL DE ENTREGAS Y CORRECCIONES -->
+              <div style="margin-top:20px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06)">
+                <h5 style="font-size:13px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Historial de Intentos y Corrección Docente</h5>
+                <div id="entregas-historial-list" style="font-size:13px;color:var(--muted)">Sin entregas realizadas aún.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MÓDULO DE EXAMEN O PROYECTO FINAL -->
+          <div class="card" id="modulo-examen" style="display:none;border-color:var(--gold);margin-bottom:18px">
+            <h3 style="font-size:18px;color:var(--gold-light);margin-bottom:10px" id="examen-tipo-header">📝 Evaluación Oficial</h3>
+            <p style="font-size:13.5px;color:var(--muted);margin-bottom:14px" id="examen-instrucciones">
+              Esta prueba computa directamente en la nota final del curso.
+            </p>
+
+            <form id="form-subir-examen">
+              <div class="field">
+                <label for="ex-archivo">Enlace al archivo del proyecto o memoria de examen (URL)</label>
+                <input type="url" id="ex-archivo" class="tc-input" placeholder="https://..." required>
+              </div>
+              <div class="field">
+                <label for="ex-comentario">Observaciones del alumno</label>
+                <textarea id="ex-comentario" class="tc-textarea" placeholder="Indica detalles técnicos sobre el entorno probado..."></textarea>
+              </div>
+              <button type="submit" id="btn-enviar-examen" class="btn btn-gold" style="width:100%">
+                Enviar Evaluación al Docente 🚀
+              </button>
+              <div id="ex-msg-status" class="status-msg"></div>
+            </form>
+
+            <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">
+              <div id="examen-resultado-box" style="font-size:13px"></div>
+            </div>
+          </div>
+
+          <!-- CUADERNO DE NOTAS PERSONALES DEL ALUMNO (PERSISTENTE) -->
+          <div class="card" style="background:#040a16;border:1px dashed var(--border)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <label for="notas-privadas" style="font-size:13px;font-weight:800;color:var(--sky)">
+                📝 Cuaderno de Notas Personales (Solo visible para ti)
+              </label>
+              <span id="notas-guardadas-tag" style="font-size:11px;color:var(--green);font-family:var(--mono);display:none">Guardado ✓</span>
+            </div>
+            <textarea id="notas-privadas" class="tc-textarea" placeholder="Escribe aquí tus anotaciones personales, comandos clave o recordatorios para este tema..." style="min-height:90px;font-size:13.5px"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    let currentCursoSlug = "";
+    let currentLeccionId = null;
+    let cursoData = null;
+    let leccionesList = [];
+    let saveTimeout = null;
+
+    async function cargarAula() {
+      const urlParams = new URLSearchParams(window.location.search);
+      currentCursoSlug = urlParams.get("curso");
+      const leccionSlug = urlParams.get("leccion");
+
+      if (!currentCursoSlug) {
+        location.href = "campus.html";
+        return;
+      }
+
+      // Obtener datos del curso
+      try {
+        const cRes = await window.TC_API.cursos.detalle(currentCursoSlug);
+        cursoData = cRes.curso;
+        if (!cursoData) {
+          location.href = "campus.html";
+          return;
+        }
+        document.getElementById("aula-curso-titulo").textContent = cursoData.titulo;
+
+        // Cargar árbol de lecciones
+        const lRes = await window.TC_API.lecciones.arbol(cursoData.id);
+        leccionesList = lRes.lecciones || [];
+
+        // Renderizar menú lateral estilo Moodle
+        const arbolBox = document.getElementById("sidebar-arbol");
+        document.getElementById("sidebar-contador").textContent = `${leccionesList.length} temas`;
+
+        // Agrupar por bloque
+        const bloques = {};
+        leccionesList.forEach(l => {
+          const bKey = `Bloque ${l.bloque_numero}: ${l.bloque_titulo}`;
+          if (!bloques[bKey]) bloques[bKey] = [];
+          bloques[bKey].push(l);
+        });
+
+        // Seleccionar lección activa
+        let leccionActiva = null;
+        if (leccionSlug) {
+          leccionActiva = leccionesList.find(l => l.slug === leccionSlug);
+        }
+        if (!leccionActiva && leccionesList.length > 0) {
+          leccionActiva = leccionesList[0];
+        }
+
+        arbolBox.innerHTML = Object.entries(bloques).map(([bTitulo, items]) => `
+          <div class="moodle-block">
+            <div class="moodle-block-header">${bTitulo}</div>
+            <div>
+              ${items.map(it => {
+                let ico = "📖";
+                if (it.tipo_item === "practica_guiada") ico = "🛠️";
+                if (it.tipo_item === "examen_bloque") ico = "📝";
+                if (it.tipo_item === "proyecto_final") ico = "🏆";
+
+                const isAct = leccionActiva && leccionActiva.id === it.id;
+                const isComp = it.progreso_usuario?.estado_leccion === "completada";
+
+                return `
+                  <a href="aula.html?curso=${currentCursoSlug}&leccion=${it.slug}" class="moodle-item ${isAct ? 'active' : ''} ${isComp ? 'completed' : ''}">
+                    <span style="display:flex;align-items:center;gap:8px">
+                      <span>${ico}</span>
+                      <span style="font-size:12.5px">${it.codigo_tema ? `<strong>${it.codigo_tema}:</strong> ` : ''}${it.titulo}</span>
+                    </span>
+                    ${isComp ? `<span style="color:var(--green);font-weight:900">✓</span>` : ''}
+                  </a>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `).join('');
+
+        // Cargar detalle de la lección seleccionada
+        if (leccionActiva) {
+          cargarLeccion(leccionActiva);
+        }
+      } catch (err) {
+        console.error("Error al cargar aula:", err);
+      }
+    }
+
+    async function cargarLeccion(lec) {
+      currentLeccionId = lec.id;
+      document.getElementById("leccion-loading").style.display = "none";
+      const box = document.getElementById("leccion-box");
+      box.style.display = "block";
+
+      document.getElementById("lec-titulo").textContent = lec.titulo;
+      document.getElementById("lec-resumen").textContent = lec.resumen_corto || "";
+      document.getElementById("lec-codigo").textContent = lec.codigo_tema ? `[${lec.codigo_tema}]` : "";
+      document.getElementById("lec-duracion").textContent = lec.duracion_minutos || "15";
+
+      // Tipo de ítem
+      const badge = document.getElementById("lec-tipo-badge");
+      badge.textContent = lec.tipo_item.toUpperCase().replace("_", " ");
+
+      // Estado de completado
+      const prog = lec.progreso_usuario;
+      const isComp = prog?.estado_leccion === "completada";
+      document.getElementById("lec-estado-completado").style.display = isComp ? "inline" : "none";
+      document.getElementById("btn-completar-tema").textContent = isComp ? "✓ Tema Completado" : "Marcar tema como completado";
+
+      // Teoría
+      document.getElementById("lec-contenido-teoria").innerHTML = lec.contenido_teoria || "<p>Contenido explicativo del tema.</p>";
+
+      // Vídeo
+      const vBox = document.getElementById("lec-video-box");
+      const vFrame = document.getElementById("lec-video-frame");
+      if (lec.video_url) {
+        vBox.style.display = "block";
+        vFrame.innerHTML = `<iframe src="${lec.video_url}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen></iframe>`;
+        if (prog?.video_visto) {
+          document.getElementById("video-visto-badge").style.display = "inline";
+        }
+      } else {
+        vBox.style.display = "none";
+        vFrame.innerHTML = "";
+      }
+
+      // Descargas Apuntes / Presentación
+      const docsBox = document.getElementById("lec-docs-box");
+      const btnApuntes = document.getElementById("btn-descarga-apuntes");
+      const btnPres = document.getElementById("btn-descarga-presentacion");
+      let hasDocs = false;
+
+      if (lec.pdf_apuntes_url) {
+        btnApuntes.style.display = "inline-flex";
+        btnApuntes.href = lec.pdf_apuntes_url;
+        btnApuntes.onclick = () => window.TC_API.progreso.marcar({ leccion_id: lec.id, curso_id: cursoData.id, apuntes_descargados: true });
+        hasDocs = true;
+      } else {
+        btnApuntes.style.display = "none";
+      }
+
+      if (lec.presentacion_url) {
+        btnPres.style.display = "inline-flex";
+        btnPres.href = lec.presentacion_url;
+        hasDocs = true;
+      } else {
+        btnPres.style.display = "none";
+      }
+      docsBox.style.display = hasDocs ? "flex" : "none";
+
+      // Recursos Extra
+      const extraBox = document.getElementById("lec-extra-box");
+      const extraList = document.getElementById("lec-extra-list");
+      if (lec.recursos_extra && lec.recursos_extra.length > 0) {
+        extraBox.style.display = "block";
+        extraList.innerHTML = lec.recursos_extra.map(r => `
+          <div style="background:#040915;padding:8px 12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:13px">📁 ${r.titulo} <small style="color:var(--sky)">(${r.tipo || 'Enlace'})</small></span>
+            <a href="${r.url}" target="_blank" class="btn btn-ghost" style="padding:4px 8px;font-size:11.5px;min-height:auto">Abrir / Descargar ↗</a>
+          </div>
+        `).join('');
+      } else {
+        extraBox.style.display = "none";
+      }
+
+      // Actividad práctica
+      const modAct = document.getElementById("modulo-actividad");
+      if (lec.tiene_actividad) {
+        modAct.style.display = "block";
+        document.getElementById("act-titulo").textContent = lec.titulo_actividad || "Boletín de Prácticas";
+        document.getElementById("act-instrucciones").textContent = lec.instrucciones_actividad || "";
+        document.getElementById("act-max-nota").textContent = `Nota máx: ${lec.nota_maxima_actividad || 10}`;
+
+        const btnBoletin = document.getElementById("act-boletin-btn");
+        if (lec.pdf_boletin_url) {
+          btnBoletin.style.display = "inline-flex";
+          btnBoletin.href = lec.pdf_boletin_url;
+        } else {
+          btnBoletin.style.display = "none";
+        }
+
+        // Solucionario controlado (solo si mostrar_solucionario = TRUE)
+        const btnSol = document.getElementById("act-solucionario-btn");
+        if (lec.mostrar_solucionario && lec.solucionario_url) {
+          btnSol.style.display = "inline-flex";
+          btnSol.href = lec.solucionario_url;
+        } else {
+          btnSol.style.display = "none";
+        }
+
+        // Cargar historial de entregas
+        cargarHistorialEntregas(lec.id);
+      } else {
+        modAct.style.display = "none";
+      }
+
+      // Examen / Proyecto final
+      const modEx = document.getElementById("modulo-examen");
+      if (["examen_bloque", "proyecto_final"].includes(lec.tipo_item)) {
+        modEx.style.display = "block";
+        document.getElementById("examen-tipo-header").textContent = lec.tipo_item === "proyecto_final" ? "🏆 Entrega del Proyecto Final" : "📝 Examen de Bloque";
+        cargarHistorialExamenes(lec.id);
+      } else {
+        modEx.style.display = "none";
+      }
+
+      // Notas privadas
+      const txtNotas = document.getElementById("notas-privadas");
+      txtNotas.value = prog?.notas_personales_alumno || "";
+    }
+
+    async function cargarHistorialEntregas(leccionId) {
+      const container = document.getElementById("entregas-historial-list");
+      try {
+        const res = await window.TC_API.entregas.listar({ leccion_id: leccionId });
+        const items = res.entregas || [];
+        if (items.length === 0) {
+          container.innerHTML = `<span style="color:var(--muted)">Sin entregas realizadas aún.</span>`;
+          return;
+        }
+
+        container.innerHTML = items.map(ent => `
+          <div style="background:#091428;border:1px solid rgba(56,189,248,0.15);padding:10px 14px;border-radius:10px;margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <strong style="color:#fff">Intento #${ent.numero_intento}</strong>
+              <span class="badge badge-${ent.estado_entrega}">${ent.estado_entrega.toUpperCase().replace('_', ' ')}</span>
+            </div>
+            ${ent.nota !== null ? `<div style="font-size:14px;color:var(--gold-light);font-weight:800;margin:4px 0">Nota: ${ent.nota} / 10</div>` : ''}
+            ${ent.feedback_profesor ? `<div style="background:rgba(2,132,199,0.1);padding:6px 10px;border-radius:6px;margin-top:6px;color:#bae6fd"><strong>Comentario del profesor:</strong> ${ent.feedback_profesor}</div>` : ''}
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;font-family:var(--mono)">Entregado: ${new Date(ent.fecha_entrega).toLocaleString()}</div>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error("Error historial:", e);
+      }
+    }
+
+    async function cargarHistorialExamenes(leccionId) {
+      const box = document.getElementById("examen-resultado-box");
+      try {
+        const res = await window.TC_API.examenes.listar({ leccion_id: leccionId });
+        const items = res.examenes || [];
+        if (items.length === 0) {
+          box.innerHTML = `<span style="color:var(--muted)">No has enviado esta prueba todavía.</span>`;
+          return;
+        }
+
+        box.innerHTML = items.map(ex => `
+          <div style="background:#07152b;border:1.5px solid var(--border-hi);padding:12px;border-radius:10px;margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span>Intento #${ex.numero_intento}</span>
+              <span class="badge badge-${ex.estado_evaluacion}">${ex.estado_evaluacion.toUpperCase()}</span>
+            </div>
+            ${ex.nota !== null ? `<div style="font-size:16px;color:${ex.aprobado ? 'var(--green)' : 'var(--red)'};font-weight:900;margin:6px 0">Nota: ${ex.nota} / 10 (${ex.aprobado ? 'APROBADO' : 'SUSPENSO'})</div>` : ''}
+            ${ex.feedback_profesor ? `<div style="margin-top:6px;color:#d1d5db"><strong>Feedback:</strong> ${ex.feedback_profesor}</div>` : ''}
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error("Error examenes:", e);
+      }
+    }
+
+    // Botón marcar tema como completado
+    document.getElementById("btn-completar-tema").addEventListener("click", async () => {
+      if (!currentLeccionId || !cursoData) return;
+      try {
+        const res = await window.TC_API.progreso.marcar({
+          leccion_id: currentLeccionId,
+          curso_id: cursoData.id,
+          estado_leccion: "completada"
+        });
+        window.tcToast("¡Tema completado con éxito!", "success");
+        document.getElementById("lec-estado-completado").style.display = "inline";
+        document.getElementById("btn-completar-tema").textContent = "✓ Tema Completado";
+        if (res.porcentaje_curso !== undefined) {
+          document.getElementById("aula-progreso-txt").textContent = `Progreso: ${res.porcentaje_curso}%`;
+        }
+      } catch (err) {
+        window.tcToast("Error: " + err.message, "error");
+      }
+    });
+
+    // Envío de boletín práctico
+    document.getElementById("form-subir-entrega").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn-enviar-tarea");
+      const status = document.getElementById("ent-msg-status");
+
+      const codigo = document.getElementById("ent-codigo").value.trim();
+      const fileInput = document.getElementById("ent-archivo-input");
+      let archivo = document.getElementById("ent-archivo").value.trim();
+      let nombreArchivo = null;
+
+      if (!codigo && !archivo && (!fileInput.files || fileInput.files.length === 0)) {
+        status.className = "status-msg err";
+        status.textContent = "Debes pegar código o seleccionar un archivo para subir a Supabase Storage.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Enviando entrega...";
+
+      try {
+        if (fileInput.files && fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          document.getElementById("ent-upload-progress").style.display = "block";
+          const uploadRes = await window.TC_API.storage.upload("entregas", file);
+          archivo = uploadRes.url;
+          nombreArchivo = file.name;
+          document.getElementById("ent-upload-progress").style.display = "none";
+        }
+
+        await window.TC_API.entregas.enviar({
+          leccion_id: currentLeccionId,
+          contenido_codigo: codigo || null,
+          archivo_url: archivo || null,
+          nombre_archivo: nombreArchivo || (archivo ? archivo.split("/").pop() : null),
+          comentario_alumno: comentario || null
+        });
+
+        status.className = "status-msg ok";
+        status.textContent = "✅ ¡Entrega subida a Supabase Storage y registrada correctamente! El profesor la corregirá en breve.";
+        document.getElementById("form-subir-entrega").reset();
+        cargarHistorialEntregas(currentLeccionId);
+      } catch (err) {
+        status.className = "status-msg err";
+        status.textContent = "❌ " + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Enviar Solución para Corrección 🚀";
+      }
+    });
+
+    // Envío de examen o proyecto
+    document.getElementById("form-subir-examen").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn-enviar-examen");
+      const status = document.getElementById("ex-msg-status");
+      const archivo = document.getElementById("ex-archivo").value.trim();
+      const comentario = document.getElementById("ex-comentario").value.trim();
+
+      btn.disabled = true;
+      btn.textContent = "Enviando prueba...";
+
+      try {
+        await window.TC_API.examenes.enviar({
+          curso_id: cursoData.id,
+          leccion_id: currentLeccionId,
+          tipo_evaluacion: "examen_bloque",
+          archivo_proyecto_url: archivo,
+          nombre_archivo: archivo.split("/").pop(),
+          comentario_alumno: comentario || null
+        });
+
+        status.className = "status-msg ok";
+        status.textContent = "✅ ¡Prueba enviada! Pendiente de calificación.";
+        cargarHistorialExamenes(currentLeccionId);
+      } catch (err) {
+        status.className = "status-msg err";
+        status.textContent = "❌ " + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Enviar Evaluación al Docente 🚀";
+      }
+    });
+
+    // Autoguardado de notas personales del cuaderno privado
+    document.getElementById("notas-privadas").addEventListener("input", (e) => {
+      const val = e.target.value;
+      const tag = document.getElementById("notas-guardadas-tag");
+      tag.style.display = "none";
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(async () => {
+        if (!currentLeccionId) return;
+        await window.TC_API.progreso.marcar({
+          leccion_id: currentLeccionId,
+          notas_personales_alumno: val
+        });
+        tag.style.display = "inline";
+      }, 1000);
+    });
+
+    document.addEventListener("DOMContentLoaded", cargarAula);
+  </script>
+</body>
+</html>

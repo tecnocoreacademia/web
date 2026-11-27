@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Biblioteca de Recursos y Guías Gratuitas · TecnoCore</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+</head>
+<body data-page="recursos">
+
+  <main class="wrap" style="padding-top:20px;padding-bottom:50px">
+    <div style="margin-bottom:24px">
+      <div class="pill gold"><span class="dot"></span> MATERIAL DESCARGABLE</div>
+      <h1>Recursos y Guías <span class="grad">Gratuitas</span></h1>
+      <p class="lead">Chuletas de comandos, apuntes en PDF y esquemas visuales para acelerar tu dominio técnico.</p>
+    </div>
+
+    <!-- TARJETAS DE RECURSOS -->
+    <div class="grid-3">
+      <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <span class="badge badge-publicado">PDF COMPLETO</span>
+          <h3 style="margin-top:10px">Manual de Supervivencia: Terminal y Bash</h3>
+          <p style="font-size:13.5px;color:var(--muted);margin:8px 0 14px">
+            Guía completa paso a paso con los comandos que todo técnico SMR y ASIR necesita: navegación, tuberías, permisos octales, enlaces duros/simbólicos y filtros grep/awk.
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalDescarga('Manual de Supervivencia: Terminal y Bash', 'introcursob.pdf')">
+          📥 Descargar Guía Gratis (PDF)
+        </button>
+      </div>
+
+      <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <span class="badge badge-publicado">CHULETA DIGITAL</span>
+          <h3 style="margin-top:10px">Chuleta Rápida de Diagnóstico de Redes en Linux</h3>
+          <p style="font-size:13.5px;color:var(--muted);margin:8px 0 14px">
+            Resumen visual de comandos: ip addr, ip route, ss, netstat, tcpdump, curl, ping, traceroute y resolución DNS paso a paso.
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalDescarga('Chuleta Rápida de Diagnóstico de Redes en Linux', 'introcursob.pdf')">
+          📥 Descargar Chuleta (PDF)
+        </button>
+      </div>
+
+      <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <span class="badge badge-publicado">PLANTILLA SCRIPT</span>
+          <h3 style="margin-top:10px">Esqueleto Estándar para Scripts Bash Profesionales</h3>
+          <p style="font-size:13.5px;color:var(--muted);margin:8px 0 14px">
+            Estructura base con manejo seguro de errores (`set -euo pipefail`), parseo de argumentos `getopts`, funciones de logging y códigos de salida limpios.
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalDescarga('Plantilla Script Bash Profesional', 'introcursob.pdf')">
+          📥 Descargar Plantilla .sh / PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL DE CAPTURA DE LEAD PARA DESCARGA -->
+    <div class="modal-bg" id="modal-descarga">
+      <div class="modal-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span class="badge badge-publicado">DESCARGA INMEDIATA</span>
+          <button class="drawer-close" onclick="cerrarModalDescarga()">✕</button>
+        </div>
+        <h3 id="modal-recurso-titulo" style="font-size:19px;margin-bottom:8px">Descarga tu recurso</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">
+          Indícanos a dónde enviarte las actualizaciones y la descarga se iniciará automáticamente.
+        </p>
+
+        <form id="form-lead-descarga">
+          <input type="hidden" id="lead-recurso-nombre">
+          <input type="hidden" id="lead-recurso-archivo">
+
+          <div class="field">
+            <label for="dl-nombre">Tu nombre completo *</label>
+            <input type="text" id="dl-nombre" class="tc-input" placeholder="Ej. Carlos Prieto" required>
+          </div>
+          <div class="field">
+            <label for="dl-email">Tu correo electrónico *</label>
+            <input type="email" id="dl-email" class="tc-input" placeholder="tu@correo.com" required>
+          </div>
+          <div class="field">
+            <label for="dl-nivel">Nivel de estudios (Opcional)</label>
+            <select id="dl-nivel" class="tc-select">
+              <option value="">Selecciona tu nivel...</option>
+              <option value="SMR">Grado Medio SMR</option>
+              <option value="ASIR">Grado Superior ASIR</option>
+              <option value="DAM/DAW">DAM / DAW</option>
+              <option value="Universidad">Universidad</option>
+              <option value="Autodidacta">Autodidacta</option>
+            </select>
+          </div>
+
+          <button type="submit" id="btn-dl-submit" class="btn btn-gold" style="width:100%;margin-top:6px">
+            🚀 Desbloquear Descarga Directa
+          </button>
+          <div id="dl-status" class="status-msg"></div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    function abrirModalDescarga(tituloRecurso, archivoUrl) {
+      document.getElementById("modal-recurso-titulo").textContent = tituloRecurso;
+      document.getElementById("lead-recurso-nombre").value = tituloRecurso;
+      document.getElementById("lead-recurso-archivo").value = archivoUrl;
+      document.getElementById("dl-status").className = "status-msg";
+      document.getElementById("modal-descarga").classList.add("open");
+    }
+
+    function cerrarModalDescarga() {
+      document.getElementById("modal-descarga").classList.remove("open");
+    }
+
+    document.getElementById("form-lead-descarga").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn-dl-submit");
+      const status = document.getElementById("dl-status");
+      const recursoNombre = document.getElementById("lead-recurso-nombre").value;
+      const archivoUrl = document.getElementById("lead-recurso-archivo").value;
+
+      btn.disabled = true;
+      btn.textContent = "Procesando...";
+
+      const payload = {
+        tipo_solicitud: "recurso_gratuito",
+        nombre: document.getElementById("dl-nombre").value.trim(),
+        email: document.getElementById("dl-email").value.trim(),
+        nivel_estudios: document.getElementById("dl-nivel").value || null,
+        recurso_solicitado: recursoNombre,
+        mensaje: `Descarga solicitada para el recurso: ${recursoNombre}`
+      };
+
+      try {
+        await window.TC_API.leads.enviar(payload);
+        status.className = "status-msg ok";
+        status.textContent = "✅ ¡Listo! Iniciando la descarga del archivo...";
+
+        // Iniciar descarga del archivo
+        const a = document.createElement("a");
+        a.href = archivoUrl;
+        a.download = archivoUrl.split('/').pop();
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        setTimeout(() => {
+          cerrarModalDescarga();
+          document.getElementById("form-lead-descarga").reset();
+          btn.disabled = false;
+          btn.textContent = "🚀 Desbloquear Descarga Directa";
+        }, 1500);
+      } catch (err) {
+        status.className = "status-msg err";
+        status.textContent = "❌ Error: " + err.message;
+        btn.disabled = false;
+        btn.textContent = "🚀 Desbloquear Descarga Directa";
+      }
+    });
+  </script>
+</body>
+</html>

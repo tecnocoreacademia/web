@@ -1,0 +1,11 @@
+{
+  "name": "tecnocore-lms-web",
+  "version": "2.1.0",
+  "description": "Plataforma Educativa TecnoCore LMS y Portal Web Oficial (Supabase + GitHub Pages)",
+  "private": true,
+  "scripts": {
+    "supabase:start": "supabase start",
+    "supabase:deploy": "supabase functions deploy",
+    "deploy:pages": "gh-pages -d ."
+  }
+}

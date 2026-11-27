@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Catálogo Completo de Cursos · TecnoCore Academia</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+</head>
+<body data-page="cursos">
+
+  <main class="wrap" style="padding-top:20px;padding-bottom:50px">
+    <div style="margin-bottom:24px">
+      <div class="pill"><span class="dot"></span> OFERTA FORMATIVA</div>
+      <h1>Catálogo de <span class="grad">Cursos Online</span></h1>
+      <p class="lead">Formaciones estructuradas por bloques temáticos con metodología práctica, boletines guiados y certificación.</p>
+    </div>
+
+    <!-- BARRA DE FILTROS Y BUSCADOR -->
+    <div class="card" style="margin-bottom:24px;padding:16px 20px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:5px">Buscador</label>
+          <input type="text" id="filtro-buscar" class="tc-input" placeholder="Buscar curso o tema..." style="min-height:42px;font-size:14px">
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:5px">Categoría</label>
+          <select id="filtro-categoria" class="tc-select" style="min-height:42px;font-size:14px">
+            <option value="">Todas las categorías</option>
+            <option value="Sistemas y Linux">Sistemas y Linux</option>
+            <option value="Redes y Seguridad">Redes y Seguridad</option>
+            <option value="Bases de Datos">Bases de Datos</option>
+            <option value="Desarrollo Web">Desarrollo Web</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:5px">Nivel</label>
+          <select id="filtro-nivel" class="tc-select" style="min-height:42px;font-size:14px">
+            <option value="">Todos los niveles</option>
+            <option value="desde_cero">Desde Cero</option>
+            <option value="basico">Básico</option>
+            <option value="intermedio">Intermedio</option>
+            <option value="avanzado">Avanzado</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:5px">Modalidad</label>
+          <select id="filtro-acceso" class="tc-select" style="min-height:42px;font-size:14px">
+            <option value="">Cualquier tipo de acceso</option>
+            <option value="gratis">Gratis</option>
+            <option value="pago_unico">Pago único</option>
+            <option value="suscripcion">Suscripción</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTADO DINÁMICO DE CURSOS -->
+    <div id="catalogo-grid" class="grid-3">
+      <div style="text-align:center;padding:40px;color:var(--muted);grid-column:1/-1">Cargando catálogo...</div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    async function cargarCatalogo() {
+      const grid = document.getElementById("catalogo-grid");
+      const buscar = document.getElementById("filtro-buscar").value.trim();
+      const categoria = document.getElementById("filtro-categoria").value;
+      const nivel = document.getElementById("filtro-nivel").value;
+      const tipo_acceso = document.getElementById("filtro-acceso").value;
+
+      const params = {};
+      if (buscar) params.buscar = buscar;
+      if (categoria) params.categoria = categoria;
+      if (nivel) params.nivel = nivel;
+      if (tipo_acceso) params.tipo_acceso = tipo_acceso;
+
+      try {
+        const res = await window.TC_API.cursos.listar(params);
+        const cursos = res.cursos || [];
+
+        if (cursos.length === 0) {
+          grid.innerHTML = `
+            <div class="card" style="grid-column:1/-1;text-align:center;padding:40px">
+              <h3>No se encontraron cursos con estos filtros</h3>
+              <p style="margin-top:8px">Prueba a restablecer la búsqueda o seleccionar otra categoría.</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = cursos.map(c => {
+          const precioHTML = c.precio_oferta
+            ? `<span style="text-decoration:line-through;color:var(--muted);font-size:13px;margin-right:6px">€${c.precio}</span> <strong style="font-size:20px;color:var(--gold-light)">€${c.precio_oferta}</strong>`
+            : (parseFloat(c.precio) === 0 ? `<strong style="font-size:20px;color:var(--green)">Gratis</strong>` : `<strong style="font-size:20px;color:#fff">€${c.precio}</strong>`);
+
+          return `
+            <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                  <span class="badge badge-publicado">${c.nivel.toUpperCase().replace('_', ' ')}</span>
+                  <span style="font-size:12px;color:var(--muted);font-family:var(--mono)">⏱️ ${c.duracion_estimada_horas}h</span>
+                </div>
+                <h3>${c.titulo}</h3>
+                <p style="font-size:13.5px;color:var(--muted);margin-bottom:12px">${c.descripcion_corta || c.subtitulo || ''}</p>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px">
+                  ${(c.etiquetas || []).map(t => `<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#0b1d3a;color:var(--sky)">#${t}</span>`).join('')}
+                </div>
+              </div>
+
+              <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;margin-top:10px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                  <div>${precioHTML}</div>
+                  <span style="font-size:12px;color:var(--muted)">${c.categoria}</span>
+                </div>
+                <a href="curso-detalle.html?slug=${c.slug}" class="btn btn-primary" style="font-size:13.5px">Ver Temario Completo →</a>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error("Error al cargar cursos:", err);
+        grid.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;color:var(--red)">Error al conectar con la base de datos de cursos.</div>`;
+      }
+    }
+
+    document.getElementById("filtro-buscar").addEventListener("input", cargarCatalogo);
+    document.getElementById("filtro-categoria").addEventListener("change", cargarCatalogo);
+    document.getElementById("filtro-nivel").addEventListener("change", cargarCatalogo);
+    document.getElementById("filtro-acceso").addEventListener("change", cargarCatalogo);
+
+    document.addEventListener("DOMContentLoaded", cargarCatalogo);
+  </script>
+</body>
+</html>

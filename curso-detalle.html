@@ -1,0 +1,324 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Temario y Ficha de Curso · TecnoCore Academia</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+</head>
+<body data-page="cursos">
+
+  <main class="wrap" style="padding-top:20px;padding-bottom:50px">
+    <div id="curso-loading" style="text-align:center;padding:50px;color:var(--muted)">Cargando información del curso...</div>
+
+    <div id="curso-content" style="display:none">
+      <!-- CABECERA CURSO -->
+      <div style="margin-bottom:24px">
+        <a href="cursos.html" style="font-size:13px;color:var(--sky);font-weight:700">← Volver al catálogo</a>
+        <div style="display:flex;gap:8px;align-items:center;margin:12px 0 8px">
+          <span class="badge badge-publicado" id="c-nivel">NIVEL</span>
+          <span class="badge" style="background:#0c1d38;color:#93c5fd" id="c-categoria">CATEGORÍA</span>
+          <span class="badge" style="background:#1e1b4b;color:#c084fc" id="c-codigo">CÓDIGO</span>
+        </div>
+        <h1 id="c-titulo" style="margin-bottom:8px">Título del Curso</h1>
+        <p class="lead" id="c-subtitulo" style="margin-bottom:16px"></p>
+      </div>
+
+      <div class="moodle-layout">
+        <!-- COLUMNA PRINCIPAL: DETALLES Y TEMARIO MOODLE -->
+        <div>
+          <!-- VÍDEO TRÁILER O BANNER -->
+          <div id="c-trailer-box" style="margin-bottom:24px;border-radius:18px;overflow:hidden;border:1.5px solid var(--border);background:#020611;display:none">
+            <div style="padding:10px 14px;background:#091428;border-bottom:1px solid var(--border);font:700 12px var(--mono);color:var(--muted)">
+              📹 Tráiler y Presentación Oficial
+            </div>
+            <div id="c-trailer-embed" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden"></div>
+          </div>
+
+          <!-- QUÉ APRENDERÁS -->
+          <div class="card" style="margin-bottom:20px">
+            <h3>🎯 Qué aprenderás en este curso</h3>
+            <div id="c-aprenderas" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:14px"></div>
+          </div>
+
+          <!-- ÁRBOL DEL TEMARIO ESTILO MOODLE -->
+          <div class="card" style="margin-bottom:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+              <div>
+                <h3 style="margin-bottom:4px">📚 Estructura y Temario del Curso</h3>
+                <p style="font-size:13px;color:var(--muted)">Organizado por bloques de dificultad progresiva con prácticas y evaluaciones.</p>
+              </div>
+              <span id="c-total-items" style="font-size:12px;font-family:var(--mono);color:var(--sky)"></span>
+            </div>
+
+            <!-- CONTENEDOR DE BLOQUES -->
+            <div id="temario-moodle-tree">Cargando bloques y lecciones...</div>
+          </div>
+
+          <!-- REQUISITOS Y ENTORNO -->
+          <div class="grid-2">
+            <div class="card">
+              <h4>📋 Requisitos previos</h4>
+              <p style="margin-top:8px;font-size:13.5px" id="c-requisitos"></p>
+            </div>
+            <div class="card">
+              <h4>💻 Entorno práctico recomendado</h4>
+              <p style="margin-top:8px;font-size:13.5px" id="c-entorno"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIDEBAR DERECHO: INSCRIPCIÓN Y DESGLOSE -->
+        <div>
+          <div class="card" style="position:sticky;top:80px;border-color:var(--border-hi)">
+            <div id="c-precio-box" style="margin-bottom:16px">
+              <span style="font-size:12px;color:var(--muted);text-transform:uppercase;font-weight:800;letter-spacing:1px">Inscripción al curso</span>
+              <div id="c-precio" style="font-size:32px;font-weight:900;margin:6px 0"></div>
+            </div>
+
+            <div id="c-cta-box" style="margin-bottom:20px">
+              <button id="btn-matricular" class="btn btn-primary" style="font-size:15px;width:100%">Matricularme ahora 🚀</button>
+            </div>
+
+            <!-- DESGLOSE DE EVALUACIÓN OFICIAL -->
+            <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:16px">
+              <h4 style="font-size:14px;color:#fff;margin-bottom:10px">⚖️ Desglose de Evaluación (100%)</h4>
+              <div style="font-size:13px;line-height:1.8;color:var(--muted)">
+                <div style="display:flex;justify-content:space-between">
+                  <span>🛠️ Boletines prácticos:</span>
+                  <strong style="color:var(--sky)" id="p-ejercicios">20%</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between">
+                  <span>📝 Exámenes de bloque:</span>
+                  <strong style="color:var(--gold-light)" id="p-examenes">50%</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between">
+                  <span>🏆 Proyecto final:</span>
+                  <strong style="color:var(--green)" id="p-proyecto">30%</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px dashed rgba(255,255,255,0.06)">
+                  <span>Nota mínima para diploma:</span>
+                  <strong style="color:#fff" id="c-notamin">5.00 / 10</strong>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);font-size:12.5px;color:var(--muted)">
+              <div>⏱️ <strong id="c-horas">0</strong> horas lectivas estimadas</div>
+              <div style="margin-top:4px">🎓 Diploma emitido al aprobar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE VISTA PREVIA GRATUITA -->
+    <div class="modal-bg" id="modal-preview">
+      <div class="modal-card" style="max-width:680px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span class="badge badge-publicado">PREVIEW GRATIS</span>
+          <button class="drawer-close" onclick="cerrarPreview()">✕</button>
+        </div>
+        <h3 id="preview-titulo" style="font-size:20px;margin-bottom:10px">Título Lección Preview</h3>
+        <div id="preview-video-box" style="margin-bottom:14px;display:none"></div>
+        <div id="preview-contenido" style="max-height:340px;overflow-y:auto;font-size:14px;line-height:1.7;color:#d1d5db;background:#050b16;padding:14px;border-radius:12px;border:1px solid var(--border)"></div>
+        <div style="margin-top:16px;text-align:right">
+          <button class="btn btn-primary" onclick="cerrarPreview()">Cerrar Vista Previa</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    let currentCurso = null;
+
+    function cerrarPreview() {
+      document.getElementById("modal-preview").classList.remove("open");
+    }
+
+    function abrirPreview(titulo, contenido, videoUrl) {
+      document.getElementById("preview-titulo").textContent = titulo;
+      document.getElementById("preview-contenido").innerHTML = contenido || "<p>Contenido de muestra no disponible.</p>";
+      const videoBox = document.getElementById("preview-video-box");
+      if (videoUrl) {
+        videoBox.style.display = "block";
+        videoBox.innerHTML = `<iframe src="${videoUrl}" style="width:100%;height:280px;border-radius:10px;border:none" allowfullscreen></iframe>`;
+      } else {
+        videoBox.style.display = "none";
+        videoBox.innerHTML = "";
+      }
+      document.getElementById("modal-preview").classList.add("open");
+    }
+
+    async function cargarDetalle() {
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get("slug");
+
+      if (!slug) {
+        document.getElementById("curso-loading").innerHTML = `
+          <div class="card" style="max-width:500px;margin:40px auto;text-align:center">
+            <h3>No se especificó ningún curso</h3>
+            <a href="cursos.html" class="btn btn-primary" style="margin-top:14px">Ir al catálogo</a>
+          </div>`;
+        return;
+      }
+
+      try {
+        const res = await window.TC_API.cursos.detalle(slug);
+        const curso = res.curso;
+        currentCurso = curso;
+
+        if (!curso) {
+          document.getElementById("curso-loading").innerHTML = `<div class="card">Curso no encontrado</div>`;
+          return;
+        }
+
+        // Rellenar cabecera y datos
+        document.getElementById("c-titulo").textContent = curso.titulo;
+        document.getElementById("c-subtitulo").textContent = curso.subtitulo || curso.descripcion_corta || "";
+        document.getElementById("c-nivel").textContent = curso.nivel.toUpperCase().replace("_", " ");
+        document.getElementById("c-categoria").textContent = curso.categoria;
+        document.getElementById("c-codigo").textContent = curso.codigo_curso;
+        document.getElementById("c-requisitos").textContent = curso.requisitos_previos || "Ninguno.";
+        document.getElementById("c-entorno").textContent = curso.entorno_practico || "Cualquier distribución Linux (Ubuntu, Debian, Fedora, WSL).";
+        document.getElementById("c-horas").textContent = curso.duracion_estimada_horas;
+        document.getElementById("p-ejercicios").textContent = `${curso.peso_ejercicios}%`;
+        document.getElementById("p-examenes").textContent = `${curso.peso_examenes_bloque}%`;
+        document.getElementById("p-proyecto").textContent = `${curso.peso_proyecto_final}%`;
+        document.getElementById("c-notamin").textContent = `${curso.nota_minima_aprobado} / 10`;
+
+        // Qué aprenderás
+        const aprenderasBox = document.getElementById("c-aprenderas");
+        if (curso.que_aprenderas && curso.que_aprenderas.length > 0) {
+          aprenderasBox.innerHTML = curso.que_aprenderas.map(item => `
+            <div style="display:flex;align-items:flex-start;gap:8px;font-size:13.5px">
+              <span style="color:var(--green)">✓</span>
+              <span>${item}</span>
+            </div>
+          `).join('');
+        } else {
+          aprenderasBox.innerHTML = "<p style='color:var(--muted);font-size:13px'>Temario completo detallado a continuación.</p>";
+        }
+
+        // Precio
+        const precioBox = document.getElementById("c-precio");
+        if (parseFloat(curso.precio) === 0 || curso.tipo_acceso === "gratis") {
+          precioBox.innerHTML = `<span style="color:var(--green)">Gratis</span>`;
+        } else if (curso.precio_oferta) {
+          precioBox.innerHTML = `
+            <span style="text-decoration:line-through;color:var(--muted);font-size:18px">€${curso.precio}</span>
+            <span style="color:var(--gold-light)">€${curso.precio_oferta}</span>
+          `;
+        } else {
+          precioBox.innerHTML = `€${curso.precio}`;
+        }
+
+        // Tráiler
+        if (curso.video_trailer_url) {
+          const trailerBox = document.getElementById("c-trailer-box");
+          const trailerEmbed = document.getElementById("c-trailer-embed");
+          trailerBox.style.display = "block";
+          trailerEmbed.innerHTML = `<iframe src="${curso.video_trailer_url}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen></iframe>`;
+        }
+
+        // Cargar árbol de temario estilo Moodle
+        const leccionesRes = await window.TC_API.lecciones.arbol(curso.id);
+        const lecciones = leccionesRes.lecciones || [];
+        const temarioBox = document.getElementById("temario-moodle-tree");
+        document.getElementById("c-total-items").textContent = `${lecciones.length} lecciones y pruebas`;
+
+        // Agrupar por bloque
+        const bloquesMap = {};
+        lecciones.forEach(l => {
+          const key = `Bloque ${l.bloque_numero}: ${l.bloque_titulo || ''}`;
+          if (!bloquesMap[key]) bloquesMap[key] = [];
+          bloquesMap[key].push(l);
+        });
+
+        if (Object.keys(bloquesMap).length === 0) {
+          temarioBox.innerHTML = `<div style="padding:16px;color:var(--muted);font-size:13px">Próximamente se publicará el temario detallado.</div>`;
+        } else {
+          temarioBox.innerHTML = Object.entries(bloquesMap).map(([bloqueTitulo, items]) => `
+            <div class="moodle-block" style="margin-bottom:14px">
+              <div class="moodle-block-header">
+                <span>📁 ${bloqueTitulo}</span>
+                <span style="font-size:11px;font-family:var(--mono);color:var(--muted)">${items.length} ítems</span>
+              </div>
+              <div>
+                ${items.map(it => {
+                  let icono = "📖";
+                  if (it.tipo_item === "practica_guiada") icono = "🛠️";
+                  if (it.tipo_item === "examen_bloque") icono = "📝";
+                  if (it.tipo_item === "proyecto_final") icono = "🏆";
+
+                  const previewBtn = it.es_gratis_preview
+                    ? `<button class="btn btn-ghost" style="padding:4px 10px;font-size:11px;min-height:auto" onclick="abrirPreview('${it.titulo}', \`${(it.contenido_teoria || it.resumen_corto || '').replace(/`/g, "\\`")}\`, '${it.video_url || ''}')">👁️ Vista Previa Gratis</button>`
+                    : `<span style="font-size:11px;color:var(--muted)">🔒 Alumnos</span>`;
+
+                  return `
+                    <div class="moodle-item">
+                      <div style="display:flex;align-items:center;gap:10px">
+                        <span>${icono}</span>
+                        <div>
+                          <div style="font-weight:700;color:#f1f5f9">${it.codigo_tema ? `<span style="font-family:var(--mono);color:var(--sky);font-size:11px">[${it.codigo_tema}] </span>` : ''}${it.titulo}</div>
+                          ${it.resumen_corto ? `<div style="font-size:11.5px;color:var(--muted)">${it.resumen_corto}</div>` : ''}
+                        </div>
+                      </div>
+                      <div>${previewBtn}</div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // Comprobar sesión y matrícula del usuario
+        const me = await window.TC_API.auth.me();
+        const btnMatricular = document.getElementById("btn-matricular");
+
+        if (leccionesRes.matriculado) {
+          btnMatricular.textContent = "Entrar al Aula Virtual →";
+          btnMatricular.className = "btn btn-gold";
+          btnMatricular.onclick = () => {
+            location.href = `aula.html?curso=${curso.slug}`;
+          };
+        } else {
+          btnMatricular.onclick = async () => {
+            if (!me.authenticated) {
+              location.href = `login.html?redirect=curso-detalle.html?slug=${curso.slug}`;
+              return;
+            }
+
+            try {
+              btnMatricular.disabled = true;
+              btnMatricular.textContent = "Procesando...";
+              const matRes = await window.TC_API.matriculas.solicitar(curso.id);
+              window.tcToast("¡Matrícula solicitada con éxito!", "success");
+              setTimeout(() => {
+                location.href = "campus.html";
+              }, 600);
+            } catch (err) {
+              btnMatricular.disabled = false;
+              btnMatricular.textContent = "Matricularme ahora 🚀";
+              window.tcToast("Aviso: " + err.message, "error");
+            }
+          };
+        }
+
+        document.getElementById("curso-loading").style.display = "none";
+        document.getElementById("curso-content").style.display = "block";
+      } catch (err) {
+        console.error("Error al cargar detalle del curso:", err);
+        document.getElementById("curso-loading").innerHTML = `<div class="card" style="color:var(--red)">Error al cargar curso: ${err.message}</div>`;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", cargarDetalle);
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Registro de Nuevos Alumnos · TecnoCore Campus</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+</head>
+<body data-page="registro">
+
+  <main class="wrap" style="padding-top:30px;padding-bottom:60px">
+    <div style="max-width:480px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:24px">
+        <div class="pill gold"><span class="dot"></span> NUEVA MATRÍCULA</div>
+        <h1 style="font-size:28px">Crear Cuenta de <span class="grad">Alumno</span></h1>
+        <p class="lead" style="font-size:14px">
+          Regístrate para acceder al campus virtual, participar en las actividades prácticas y obtener tus certificados oficiales.
+        </p>
+      </div>
+
+      <div class="card" style="border-color:var(--border-hi);padding:28px 24px">
+        <div id="registro-exito-box" style="display:none;text-align:center">
+          <div style="font-size:48px;margin-bottom:12px">🎉</div>
+          <h2 style="font-size:22px;color:var(--green)">¡Solicitud de Registro Enviada!</h2>
+          <p style="font-size:14px;color:var(--muted);margin:12px 0 20px;line-height:1.6">
+            Tu cuenta se ha creado con estado <strong>Pendiente de Aprobación</strong>. El administrador validará tu perfil en breve. En cuanto se apruebe, podrás iniciar sesión con tu usuario y contraseña.
+          </p>
+          <a href="login.html" class="btn btn-primary" style="width:100%">Ir a Iniciar Sesión →</a>
+        </div>
+
+        <form id="form-registro">
+          <div class="field">
+            <label for="reg-nombre">Nombre completo y apellidos *</label>
+            <input type="text" id="reg-nombre" class="tc-input" placeholder="Ej. Carlos Prieto" required>
+            <small style="font-size:11.5px;color:var(--muted);margin-top:4px;display:block">Este nombre es el que aparecerá en tus diplomas oficiales.</small>
+          </div>
+
+          <div class="field">
+            <label for="reg-usuario">Nombre de usuario (@username) *</label>
+            <input type="text" id="reg-usuario" class="tc-input" placeholder="ej. carlosprieto" pattern="[a-zA-Z0-9_\-]{3,30}" required>
+            <small style="font-size:11.5px;color:var(--muted);margin-top:4px;display:block">Letras, números y guiones (sin espacios).</small>
+          </div>
+
+          <div class="field">
+            <label for="reg-email">Correo electrónico *</label>
+            <input type="email" id="reg-email" class="tc-input" placeholder="tu@correo.com" required>
+          </div>
+
+          <div class="field">
+            <label for="reg-pass">Contraseña *</label>
+            <input type="password" id="reg-pass" class="tc-input" placeholder="Mínimo 6 caracteres" minlength="6" required>
+          </div>
+
+          <div class="field">
+            <label for="reg-pass2">Confirmar contraseña *</label>
+            <input type="password" id="reg-pass2" class="tc-input" placeholder="Repite tu contraseña" minlength="6" required>
+          </div>
+
+          <button type="submit" id="btn-registro" class="btn btn-gold" style="width:100%;margin-top:8px">
+            Solicitar Registro de Alumno 🚀
+          </button>
+
+          <div id="reg-msg" class="status-msg"></div>
+        </form>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;font-size:13.5px;color:var(--muted)">
+          ¿Ya tienes cuenta activa?<br>
+          <a href="login.html" style="color:var(--sky);font-weight:700;display:inline-block;margin-top:6px">
+            Inicia sesión aquí →
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    document.getElementById("form-registro").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn-registro");
+      const msg = document.getElementById("reg-msg");
+
+      const nombre = document.getElementById("reg-nombre").value.trim();
+      const usuario = document.getElementById("reg-usuario").value.trim();
+      const email = document.getElementById("reg-email").value.trim();
+      const pass1 = document.getElementById("reg-pass").value;
+      const pass2 = document.getElementById("reg-pass2").value;
+
+      if (pass1 !== pass2) {
+        msg.className = "status-msg err";
+        msg.textContent = "❌ Las contraseñas no coinciden. Por favor, revísalas.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Procesando registro...";
+      msg.className = "status-msg";
+
+      try {
+        const res = await window.TC_API.auth.registro(nombre, usuario, email, pass1);
+        document.getElementById("form-registro").style.display = "none";
+        document.getElementById("registro-exito-box").style.display = "block";
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "Solicitar Registro de Alumno 🚀";
+        msg.className = "status-msg err";
+        msg.textContent = "❌ " + (err.message || "Error al procesar el registro.");
+      }
+    });
+  </script>
+</body>
+</html>

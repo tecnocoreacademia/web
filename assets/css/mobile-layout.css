@@ -1,0 +1,213 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--bg-deep);
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  background:
+    radial-gradient(90% 35% at 50% 0%, #0f2a4d 0%, transparent 70%),
+    radial-gradient(70% 30% at 95% 100%, rgba(234, 179, 8, 0.08) 0%, transparent 70%),
+    var(--bg-deep);
+  min-height: 100dvh;
+  line-height: 1.55;
+  overflow-x: hidden;
+  padding-top: var(--nav-top-h);
+  padding-bottom: calc(var(--nav-bot-h) + env(safe-area-inset-bottom, 0px) + 20px);
+}
+
+/* Rejilla tecnológica sutil de fondo */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 18px;
+}
+
+/* Cabecera superior fija */
+.tc-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-top-h);
+  background: var(--bg-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 100;
+}
+
+.tc-header-inner {
+  max-width: var(--max-w);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tc-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text-main);
+}
+
+.tc-brand svg {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+}
+
+.tc-brand-txt b {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.tc-brand-txt span {
+  display: block;
+  font-size: 12px;
+  color: var(--sky);
+  font-weight: 600;
+}
+
+/* Menú superior (oculto en móvil, visible en tablet/PC) */
+.tc-nav-desktop {
+  display: none;
+  align-items: center;
+  gap: 22px;
+}
+
+.tc-nav-desktop a {
+  color: var(--text-soft);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.tc-nav-desktop a:hover,
+.tc-nav-desktop a.active {
+  color: var(--sky);
+}
+
+.tc-btn-campus-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 99px;
+  background: var(--sky-soft);
+  border: 1px solid var(--sky);
+  color: var(--sky) !important;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Barra de navegación inferior tipo App (Móvil) */
+.tc-tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--nav-bot-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: rgba(8, 18, 36, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-subtle);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  z-index: 100;
+}
+
+.tc-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  min-height: 48px;
+  transition: color 0.2s, transform 0.15s;
+}
+
+.tc-tab span.ico {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.tc-tab.active,
+.tc-tab:active {
+  color: var(--sky);
+}
+
+.tc-tab:active {
+  transform: scale(0.94);
+}
+
+/* Pie de página */
+.tc-footer {
+  margin-top: 56px;
+  padding: 28px 18px;
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.tc-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.tc-footer-links a {
+  color: var(--text-soft);
+  text-decoration: none;
+}
+
+/* Adaptación a pantallas medianas y grandes */
+@media (min-width: 768px) {
+  body {
+    padding-bottom: 40px;
+  }
+  .tc-tabbar {
+    display: none;
+  }
+  .tc-nav-desktop {
+    display: flex;
+  }
+}

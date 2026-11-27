@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mi Campus Virtual · TecnoCore LMS</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+</head>
+<body data-page="campus">
+
+  <main class="wrap" style="padding-top:24px;padding-bottom:60px">
+    <!-- CABECERA DEL ALUMNO -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:28px">
+      <div>
+        <div class="pill gold"><span class="dot"></span> CAMPUS VIRTUAL LMS</div>
+        <h1 id="campus-saludo" style="font-size:clamp(22px,5vw,34px);margin-bottom:4px">Hola, Estudiante</h1>
+        <p style="color:var(--muted);font-size:14px">Bienvenido a tu panel de estudio. Sigue tu avance y accede al aula interactiva.</p>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <a href="perfil.html" class="btn btn-ghost" style="font-size:13px;padding:8px 14px">👤 Mi Perfil</a>
+        <a href="cursos.html" class="btn btn-primary" style="font-size:13px;padding:8px 14px">+ Explorar Cursos</a>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 1: MIS CURSOS MATRICULADOS -->
+    <div style="margin-bottom:34px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h2 style="font-size:20px;font-weight:800">📚 Mis Cursos y Formaciones Activas</h2>
+        <span id="contador-matriculas" style="font-family:var(--mono);font-size:12px;color:var(--sky)"></span>
+      </div>
+
+      <div id="mis-cursos-grid" class="grid-2">
+        <div style="text-align:center;padding:30px;color:var(--muted);grid-column:1/-1">Cargando tus cursos matriculados...</div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: DIPLOMAS Y CERTIFICACIONES OBTENIDAS -->
+    <div id="seccion-diplomas" style="display:none;margin-bottom:34px">
+      <h2 style="font-size:20px;font-weight:800;margin-bottom:14px">🎓 Mis Diplomas Obtenidos</h2>
+      <div id="mis-diplomas-grid" class="grid-2"></div>
+    </div>
+
+    <!-- SECCIÓN 3: OTROS CURSOS DISPONIBLES EN EL CATÁLOGO -->
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:28px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div>
+          <h2 style="font-size:20px;font-weight:800">🚀 Amplía tu formación</h2>
+          <p style="color:var(--muted);font-size:13.5px">Otros cursos disponibles en TecnoCore en los que aún no estás matriculado.</p>
+        </div>
+        <a href="cursos.html" style="font-size:13px;color:var(--sky);font-weight:700">Ver todo el catálogo →</a>
+      </div>
+
+      <div id="otros-cursos-grid" class="grid-3">
+        <div style="color:var(--muted);padding:20px">Cargando catálogo...</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    document.addEventListener("tc:ready", async (e) => {
+      const user = e.detail?.user;
+      if (!user) {
+        // Redirigir a login si no hay sesión activa
+        location.href = "login.html?redirect=campus.html";
+        return;
+      }
+
+      document.getElementById("campus-saludo").textContent = `Hola, ${user.nombre_completo.split(' ')[0]} 👋`;
+
+      try {
+        // 1. Cargar matrículas del usuario
+        const matRes = await window.TC_API.matriculas.listar();
+        const matriculas = matRes.matriculas || [];
+        const misCursosGrid = document.getElementById("mis-cursos-grid");
+        const contador = document.getElementById("contador-matriculas");
+        contador.textContent = `${matriculas.length} matriculados`;
+
+        const matriculadosCursoIds = matriculas.map(m => m.curso_id);
+
+        if (matriculas.length === 0) {
+          misCursosGrid.innerHTML = `
+            <div class="card" style="grid-column:1/-1;text-align:center;padding:40px">
+              <div style="font-size:40px;margin-bottom:10px">📖</div>
+              <h3>Aún no estás matriculado en ningún curso</h3>
+              <p style="margin:10px 0 20px">Explora los cursos disponibles y solicita acceso para comenzar a practicar.</p>
+              <a href="cursos.html" class="btn btn-primary" style="display:inline-flex">Explorar catálogo de cursos →</a>
+            </div>
+          `;
+        } else {
+          misCursosGrid.innerHTML = matriculas.map(m => {
+            const c = m.curso || {};
+            const progreso = parseFloat(m.porcentaje_progreso || 0);
+
+            // Resumen de calificaciones
+            let notasHTML = "";
+            if (m.nota_final !== null && m.nota_final !== undefined) {
+              const aprobadoTag = m.aprobado
+                ? `<span class="badge badge-aprobado">APROBADO (${m.nota_final}/10)</span>`
+                : `<span class="badge badge-denegado">SUSPENSO (${m.nota_final}/10)</span>`;
+              notasHTML = `
+                <div style="background:#040914;padding:10px 14px;border-radius:12px;margin:12px 0;font-size:12.5px;border:1px solid rgba(56,189,248,0.15)">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                    <span style="font-weight:700">Calificación Global:</span>
+                    ${aprobadoTag}
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;color:var(--muted)">
+                    <div>Ejercicios: <strong style="color:#fff">${m.nota_ejercicios !== null ? m.nota_ejercicios : '-'}</strong></div>
+                    <div>Exámenes: <strong style="color:#fff">${m.nota_examenes !== null ? m.nota_examenes : '-'}</strong></div>
+                    <div>Proyecto: <strong style="color:#fff">${m.nota_proyecto !== null ? m.nota_proyecto : '-'}</strong></div>
+                  </div>
+                </div>
+              `;
+            }
+
+            // Diploma oficial
+            let diplomaHTML = "";
+            if (m.diploma_generado && m.codigo_diploma) {
+              diplomaHTML = `
+                <div style="background:linear-gradient(135deg,#0c234a,#071226);border:1.5px solid var(--sky);padding:14px;border-radius:14px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+                  <div>
+                    <span style="font-size:11px;font-family:var(--mono);color:var(--gold-light);font-weight:800">🎓 DIPLOMA EMITIDO</span>
+                    <div style="font-size:12px;color:var(--sky);font-family:var(--mono)">${m.codigo_diploma}</div>
+                  </div>
+                  <div style="display:flex;gap:6px">
+                    <a href="verificar-diploma.html?codigo=${encodeURIComponent(m.codigo_diploma)}" target="_blank" class="btn btn-ghost" style="padding:5px 10px;font-size:11px">🛡️ Ver Certificado</a>
+                    <button class="btn btn-primary" style="padding:5px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${m.codigo_diploma}'); window.tcToast('Código copiado al portapapeles', 'success');">📋 Copiar Código</button>
+                  </div>
+                </div>
+              `;
+            }
+
+            // Botón de acción según estado
+            let accionBtn = "";
+            if (m.estado_matricula === "activa" || m.estado_matricula === "completada") {
+              accionBtn = `<a href="aula.html?curso=${c.slug}" class="btn btn-primary" style="font-size:13.5px;width:100%">Continuar en el Aula Virtual →</a>`;
+            } else if (m.estado_matricula === "pendiente_pago") {
+              accionBtn = `
+                <div style="background:rgba(234,179,8,0.12);border:1px solid rgba(234,179,8,0.4);padding:10px;border-radius:10px;text-align:center;font-size:12.5px;color:var(--gold-light)">
+                  ⏳ Matrícula pendiente de confirmación de pago o beca por el docente.
+                </div>
+              `;
+            }
+
+            return `
+              <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span class="badge badge-${m.estado_matricula}">${m.estado_matricula.toUpperCase()}</span>
+                    <span style="font-size:12px;color:var(--muted);font-family:var(--mono)">${c.codigo_curso || ''}</span>
+                  </div>
+                  <h3 style="font-size:18px">${c.titulo || 'Curso'}</h3>
+                  <p style="font-size:13px;color:var(--muted);margin:6px 0 12px">${c.descripcion_corta || ''}</p>
+
+                  <div style="margin-bottom:12px">
+                    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:4px">
+                      <span style="color:var(--muted)">Progreso del temario:</span>
+                      <span style="color:var(--sky)">${progreso}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                      <div class="progress-bar-fill" style="width:${progreso}%"></div>
+                    </div>
+                  </div>
+
+                  ${notasHTML}
+                  ${diplomaHTML}
+                </div>
+
+                <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">
+                  ${accionBtn}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // 2. Cargar otros cursos para ampliar formación
+        const cursosRes = await window.TC_API.cursos.listar();
+        const todosCursos = cursosRes.cursos || [];
+        const noMatriculados = todosCursos.filter(c => !matriculadosCursoIds.includes(c.id));
+        const otrosGrid = document.getElementById("otros-cursos-grid");
+
+        if (noMatriculados.length === 0) {
+          otrosGrid.innerHTML = `<div style="grid-column:1/-1;color:var(--muted);font-size:13.5px">¡Enhorabuena! Estás matriculado en todos los cursos ofertados.</div>`;
+        } else {
+          otrosGrid.innerHTML = noMatriculados.slice(0, 3).map(c => `
+            <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+              <div>
+                <span class="badge badge-publicado">${c.nivel.toUpperCase().replace('_', ' ')}</span>
+                <h4 style="font-size:16px;margin:8px 0 4px">${c.titulo}</h4>
+                <p style="font-size:12.5px;color:var(--muted)">${c.descripcion_corta || ''}</p>
+              </div>
+              <div style="margin-top:14px">
+                <a href="curso-detalle.html?slug=${c.slug}" class="btn btn-ghost" style="font-size:12px;padding:6px 12px;width:100%">Ver detalles y temario →</a>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        console.error("Error al cargar campus:", err);
+      }
+    });
+  </script>
+</body>
+</html>

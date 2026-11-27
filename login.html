@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Iniciar Sesión · TecnoCore Campus</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="assets/tecnocore.css">
+</head>
+<body data-page="login">
+
+  <main class="wrap" style="padding-top:40px;padding-bottom:60px">
+    <div style="max-width:440px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:24px">
+        <div class="pill gold"><span class="dot"></span> ACCESO PRIVADO</div>
+        <h1 style="font-size:28px">Acceso al <span class="grad">Campus Virtual</span></h1>
+        <p class="lead" style="font-size:14px">Entra con tu cuenta de Alumno, Profesor o Administrador.</p>
+      </div>
+
+      <div class="card" style="border-color:var(--border-hi);padding:28px 24px">
+        <form id="form-login">
+          <div class="field">
+            <label for="login-identificador">Correo electrónico o Usuario</label>
+            <input type="text" id="login-identificador" class="tc-input" placeholder="tu@correo.com o tu_usuario" required autofocus>
+          </div>
+
+          <div class="field">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <label for="login-pass" style="margin-bottom:0">Contraseña</label>
+            </div>
+            <input type="password" id="login-pass" class="tc-input" placeholder="Introduce tu contraseña" required>
+          </div>
+
+          <button type="submit" id="btn-login" class="btn btn-primary" style="width:100%;margin-top:8px">
+            Entrar al Campus →
+          </button>
+
+          <div id="login-msg" class="status-msg"></div>
+        </form>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;font-size:13.5px;color:var(--muted)">
+          ¿Aún no tienes cuenta de alumno?<br>
+          <a href="registro.html" style="color:var(--sky);font-weight:700;display:inline-block;margin-top:6px">
+            Regístrate aquí para solicitar acceso →
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Si ya tiene sesión activa, redirigir
+      const me = await window.TC_API.auth.me();
+      if (me.authenticated && me.usuario) {
+        if (me.usuario.rol === "admin" || me.usuario.rol === "profesor") {
+          location.href = "admin.html";
+        } else {
+          location.href = "campus.html";
+        }
+        return;
+      }
+
+      const form = document.getElementById("form-login");
+      const btn = document.getElementById("btn-login");
+      const msg = document.getElementById("login-msg");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const identificador = document.getElementById("login-identificador").value.trim();
+        const password = document.getElementById("login-pass").value;
+
+        btn.disabled = true;
+        btn.textContent = "Verificando credenciales...";
+        msg.className = "status-msg";
+
+        try {
+          const res = await window.TC_API.auth.login(identificador, password);
+          msg.className = "status-msg ok";
+          msg.textContent = "✅ Identificación correcta. Accediendo...";
+
+          setTimeout(() => {
+            const redirectUrl = new URLSearchParams(window.location.search).get("redirect");
+            if (redirectUrl) {
+              location.href = redirectUrl;
+            } else if (res.usuario?.rol === "admin" || res.usuario?.rol === "profesor") {
+              location.href = "admin.html";
+            } else {
+              location.href = "campus.html";
+            }
+          }, 600);
+        } catch (err) {
+          btn.disabled = false;
+          btn.textContent = "Entrar al Campus →";
+          msg.className = "status-msg err";
+
+          if (err.data?.estado === "pendiente") {
+            msg.innerHTML = `⚠️ <strong>Cuenta pendiente de validación:</strong><br>${err.message}`;
+          } else if (err.data?.estado === "denegado" || err.data?.estado === "bloqueado") {
+            msg.innerHTML = `🚫 <strong>Acceso restringido:</strong><br>${err.message}`;
+          } else {
+            msg.textContent = "❌ " + (err.message || "Credenciales incorrectas.");
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
